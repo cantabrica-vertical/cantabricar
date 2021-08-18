@@ -17,6 +17,7 @@ Imports:
     bayesplot,
     cmdstanr,
     DBI,
+    odbc,
     dbplyr,
     dplyr,
     ggplot2,
