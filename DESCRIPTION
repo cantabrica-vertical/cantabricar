@@ -36,7 +36,8 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    toastui
+    toastui,
+    DT
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
