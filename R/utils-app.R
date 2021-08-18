@@ -109,6 +109,7 @@ set_password <- function(){
 #' @importFrom DBI dbConnect
 #' @importFrom odbc odbc
 #' @importFrom keyring key_get
+#' @export get_connection
 get_connection <- function(){
     dbConnect(
         odbc(),

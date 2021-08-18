@@ -21,7 +21,7 @@ tab_siembra <- function() {
                         ),
                         textInput(
                             inputId = "database_siembra_id",
-                            label = "ID", 
+                            label = "ID",
                             value = max(as.numeric(d$plantas$id))+1,
                             placeholder = max(as.numeric(d$plantas$id))+1
                         ),
@@ -68,6 +68,11 @@ tab_siembra <- function() {
                             label = "Semillas (g)",
                             min = 0,
                             value = 0
+                        ),
+                        checkboxInput(
+                            inputId = "database_siembra_calor",
+                            label = "Calor",
+                            value = FALSE
                         ),
                         radioButtons(
                             inputId = "database_siembra_luz",

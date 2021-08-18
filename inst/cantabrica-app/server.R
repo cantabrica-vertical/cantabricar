@@ -18,7 +18,7 @@ shinyServer(
         menuItem("LinkedIn", icon = icon("linkedin"), href = "https://www.linkedin.com/company/cantabricagr/")
       )
     })
-    
+
     output$notifications <- renderMenu({
       dropdownMenu(type = "tasks", headerText = "Activas", badgeStatus = "info",
                    taskItem(value = round(100*length(active_ids()$germinadas)/length(active_ids()$sembradas), 2), color = "green", text = "Germinadas"),
@@ -26,16 +26,16 @@ shinyServer(
                    taskItem(value = round(100*length(active_ids()$trasplantadas)/length(active_ids()$sembradas), 2), color = "red", text = "Trasplantadas")
       )
     })
-    
+
     output$n_sembradas <- renderText({nrow(d$sembradas)})
     output$n_germinadas <- renderText({nrow(d$germinadas)})
     output$n_hojas <- renderText({nrow(d$hojas)})
     output$n_trasplantadas <- renderText({nrow(d$trasplantadas)})
     output$n_cosechadas <- renderText({nrow(d$cosechadas)})
-    
+
     active_ids <- reactive({map(d, ~filter(., !(id %in% d$cosechadas$id)) %>% pull(id))})
     inactive_ids <- reactive({map(d, ~filter(., id %in% d$cosechadas$id) %>% pull(id))})
-    
+
     observe({
       updateTextInput(session, "database_siembra_id", value = max(as.numeric(active_ids()$sembradas))+1, placeholder = max(as.numeric(active_ids()$sembradas))+1)
       updateSelectInput(session, "database_germinacion_id", choices = active_ids()$sembradas)
@@ -53,8 +53,8 @@ shinyServer(
       updateSelectInput(session, "database_eliminar_hojas_id", choices = active_ids()$hojas)
       updateSelectInput(session, "database_eliminar_cosecha_id", choices = inactive_ids()$cosechadas)
     })
-    
-    
+
+
     observeEvent(input$actualizar, {
       message("Updating...")
       Sys.sleep(1.5)
@@ -63,17 +63,17 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     output$descargar <- downloadHandler(
       filename = function(){ paste0("cantabrica_", Sys.Date(), ".rds")},
       content = function(file){ saveRDS(d, file)}
     )
-    
+
     ## dashboard ----
     output$dashboard_species_plot <- renderPlot({
-      summarise_data(con) %>% 
+      summarise_data(con) %>%
         count(especie) %>%
-        mutate(prop = n/sum(.$n)) %>% 
+        mutate(prop = n/sum(.$n)) %>%
         ggplot(aes(x = 2, y = prop, fill = especie)) +
         geom_bar(stat = "identity") +
         labs(fill = "Especie") +
@@ -85,21 +85,21 @@ shinyServer(
           legend.text = element_text(size = 15)
         )
     })
-    
+
     output$database_table <- DT::renderDataTable({
-      x <- summarise_data(con) %>% 
-        mutate_at(vars(starts_with("t_")), ~ifelse(is.na(.), "-", .)) %>%  
-        mutate_at(vars(starts_with("fecha_")), as_date) %>% 
+      x <- summarise_data(con) %>%
+        mutate_at(vars(starts_with("t_")), ~ifelse(is.na(.), "-", .)) %>%
+        mutate_at(vars(starts_with("fecha_")), as_date) %>%
         select(
           id, especie, variedad, marca, planta_tipo,
-          fecha_siembra, peso_semillas, luz, peso, medio_siembra,
+          fecha_siembra, peso_semillas, luz, calor, peso, medio_siembra,
           t_germinacion, t_hojas, fecha_cosecha
         ) %>%
-        arrange(desc(fecha_siembra), desc(id)) %>% 
+        arrange(desc(fecha_siembra), desc(id)) %>%
         DT::datatable(
           colnames = c(
             "ID", "Especie", "Variedad", "Marca", "Tipo", "Siembra",
-            "Semillas (g)", "Luz/Oscuridad", "Peso", "Medio siembra",
+            "Semillas (g)", "Luz/Oscuridad", "Calor", "Peso", "Medio siembra",
             "Germinaci\u00f3n", "Hojas verdaderas", "Cosecha"
           ),
           rownames= FALSE,
@@ -110,7 +110,7 @@ shinyServer(
           )
         )
     })
-    
+
     ## siembra -----------
     observeEvent(input$database_nueva_siembra, {
       Sys.sleep(1.5)
@@ -128,6 +128,9 @@ shinyServer(
         id = input$database_siembra_id,
         fecha_siembra = input$database_siembra_date,
         medio_siembra = input$database_siembra_medio_siembra,
+        peso = input$database_siembra_peso,
+        luz = input$database_siembra_luz,
+        calor = input$database_siembra_calor,
         peso_semillas = input$database_siembra_peso_semillas,
         comentarios = input$database_siembra_comentarios
       )
@@ -135,7 +138,7 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     observeEvent(input$database_siembra_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -145,7 +148,7 @@ shinyServer(
       session$reload()
       remove_modal_spinner()
     })
-    
+
     observeEvent(input$database_siembra_nuevo_especie_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -154,7 +157,7 @@ shinyServer(
       values <<- get_values(con)
       session$reload()
     })
-    
+
     observeEvent(input$database_siembra_nuevo_variedad_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -163,7 +166,7 @@ shinyServer(
       values <<- get_values(con)
       session$reload()
     })
-    
+
     observeEvent(input$database_siembra_nuevo_marca_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -172,7 +175,7 @@ shinyServer(
       values <<- get_values(con)
       session$reload()
     })
-    
+
     observeEvent(input$database_siembra_nuevo_medio_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -181,7 +184,7 @@ shinyServer(
       values <<- get_values(con)
       session$reload()
     })
-    
+
     observeEvent(input$database_siembra_nuevo_tipo_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -191,20 +194,20 @@ shinyServer(
       session$reload()
       remove_modal_spinner()
     })
-    
+
     output$siembra_table <- DT::renderDataTable({
-      x <- summarise_data(con)  %>% 
+      x <- summarise_data(con)  %>%
         mutate(
           planta = paste0(especie, " (", variedad, ")")
         ) %>%
-        drop_na(fecha_siembra) %>% 
+        drop_na(fecha_siembra) %>%
         select(id, planta, medio_siembra, t_germinacion) %>%
-        group_by(planta, medio_siembra) %>% 
+        group_by(planta, medio_siembra) %>%
         summarise(
           n = n(),
           .groups = "drop"
         ) %>%
-        relocate(planta, medio_siembra, n) %>% 
+        relocate(planta, medio_siembra, n) %>%
         DT::datatable(
           colnames = c("Especie (variedad)", "Medio de siembra", "N"),
           caption = "Estadisticas de siembra.",
@@ -212,7 +215,7 @@ shinyServer(
         )
       return(x)
     })
-    
+
     ## germinacion ------------
     observeEvent(input$database_nueva_germinacion, {
       Sys.sleep(1.5)
@@ -227,7 +230,7 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     observeEvent(input$database_germinacion_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -236,23 +239,23 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     output$germinacion_table <- DT::renderDataTable({
-      x <- summarise_data(con)  %>% 
+      x <- summarise_data(con)  %>%
         mutate(
           planta = paste0(especie, " (", variedad, ")"),
           t_germinacion = difftime(fecha_germinacion, fecha_siembra, units = "days"),
         ) %>%
-        drop_na(t_germinacion) %>% 
+        drop_na(t_germinacion) %>%
         select(id, planta, medio_siembra, t_germinacion) %>%
-        group_by(planta, medio_siembra) %>% 
+        group_by(planta, medio_siembra) %>%
         summarise(
           n = n(),
           t_germinacion = mean(t_germinacion, na.rm = TRUE),
           sd_t_germinacion = sd(t_germinacion, na.rm = TRUE),
           .groups = "drop"
         ) %>%
-        relocate(planta, medio_siembra, n) %>% 
+        relocate(planta, medio_siembra, n) %>%
         mutate(se_t_germinacion = sd_t_germinacion/sqrt(n)) %>%
         DT::datatable(
           colnames = c("Especie (variedad)", "Medio siembra", "N", "Media", "DE", "EE"),
@@ -261,7 +264,7 @@ shinyServer(
         )
       return(x)
     })
-    
+
     ## hojas ----------
     observeEvent(input$database_nuevas_hojas, {
       Sys.sleep(1.5)
@@ -276,7 +279,7 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     observeEvent(input$database_hojas_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -285,23 +288,23 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     output$hojas_table <- DT::renderDataTable({
-      x <- summarise_data(con)  %>% 
+      x <- summarise_data(con)  %>%
         mutate(
           planta = paste0(especie, " (", variedad, ")"),
           t_hojas = difftime(fecha_hojas, fecha_siembra, units = "days"),
         ) %>%
-        drop_na(t_hojas) %>% 
+        drop_na(t_hojas) %>%
         select(id, planta, medio_siembra, t_hojas) %>%
-        group_by(planta, medio_siembra) %>% 
+        group_by(planta, medio_siembra) %>%
         summarise(
           n = n(),
           t_hojas = mean(t_hojas, na.rm = TRUE),
           sd_t_hojas = sd(t_hojas, na.rm = TRUE),
           .groups = "drop"
         ) %>%
-        relocate(planta, medio_siembra, n) %>% 
+        relocate(planta, medio_siembra, n) %>%
         mutate(se_t_hojas = sd_t_hojas/sqrt(n)) %>%
         DT::datatable(
           colnames = c("Especie (variedad)", "Medio siembra", "N", "Media", "DE", "EE"),
@@ -310,7 +313,7 @@ shinyServer(
         )
       return(x)
     })
-    
+
     ## trasplante ----------
     observeEvent(input$database_nuevo_trasplante, {
       Sys.sleep(1.5)
@@ -324,9 +327,9 @@ shinyServer(
       )
       d <<- get_data(con)
       remove_modal_spinner()
-      session$reload()         
+      session$reload()
     })
-    
+
     observeEvent(input$database_trasplante_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -335,23 +338,23 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     output$trasplante_table <- DT::renderDataTable({
-      x <- summarise_data(con)  %>% 
+      x <- summarise_data(con)  %>%
         mutate(
           planta = paste0(especie, " (", variedad, ")"),
           t_trasplante = difftime(fecha_trasplante, fecha_siembra, units = "days"),
         ) %>%
-        drop_na(t_trasplante) %>% 
+        drop_na(t_trasplante) %>%
         select(id, planta, medio_siembra, t_trasplante) %>%
-        group_by(planta, medio_siembra) %>% 
+        group_by(planta, medio_siembra) %>%
         summarise(
           n = n(),
           t_trasplante = mean(t_trasplante, na.rm = TRUE),
           sd_t_trasplante = sd(t_trasplante, na.rm = TRUE),
           .groups = "drop"
         ) %>%
-        relocate(planta, medio_siembra, n) %>% 
+        relocate(planta, medio_siembra, n) %>%
         mutate(se_t_trasplante = sd_t_trasplante/sqrt(n)) %>%
         DT::datatable(
           colnames = c("Especie (variedad)", "Medio siembra", "N", "Media", "DE", "EE"),
@@ -360,7 +363,7 @@ shinyServer(
         )
       return(x)
     })
-    
+
     ## cosecha ---------
     observeEvent(input$database_nueva_cosecha, {
       Sys.sleep(1.5)
@@ -375,7 +378,7 @@ shinyServer(
       session$reload()
       remove_modal_spinner()
     })
-    
+
     observeEvent(input$database_cosecha_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
@@ -384,23 +387,23 @@ shinyServer(
       remove_modal_spinner()
       session$reload()
     })
-    
+
     output$cosecha_table <- DT::renderDataTable({
-      x <- summarise_data(con)  %>% 
+      x <- summarise_data(con)  %>%
         mutate(
           planta = paste0(especie, " (", variedad, ")"),
           t_cosecha = difftime(fecha_cosecha, fecha_siembra, units = "days"),
         ) %>%
-        drop_na(t_cosecha) %>% 
+        drop_na(t_cosecha) %>%
         select(id, planta, medio_siembra, t_cosecha) %>%
-        group_by(planta, medio_siembra) %>% 
+        group_by(planta, medio_siembra) %>%
         summarise(
           n = n(),
           t_cosecha = mean(t_cosecha, na.rm = TRUE),
           sd_t_cosecha = sd(t_cosecha, na.rm = TRUE),
           .groups = "drop"
         ) %>%
-        relocate(planta, medio_siembra, n) %>% 
+        relocate(planta, medio_siembra, n) %>%
         mutate(se_t_cosecha = sd_t_cosecha/sqrt(n)) %>%
         DT::datatable(
           colnames = c("Especie (variedad)", "Medio siembra", "N", "Media", "DE", "EE"),
@@ -409,11 +412,11 @@ shinyServer(
         )
       return(x)
     })
-    
+
     # calendario ----
     output$calendario <- renderCalendar({
-      x <- summarise_data(con) %>% 
-        select(id, especie, variedad, fecha_siembra) %>% 
+      x <- summarise_data(con) %>%
+        select(id, especie, variedad, fecha_siembra) %>%
         mutate(
           start = fecha_siembra,
           end = fecha_siembra + 7,
@@ -444,26 +447,26 @@ shinyServer(
             especie=="Mizuna" ~ "#DB72FB",
             TRUE ~ "#000000"
           )
-        ) %>% 
+        ) %>%
         calendar(
           view = "month",
           useDetailPopup = TRUE,
           isReadOnly = TRUE,
           useNavigation = TRUE,
           elementId = "calendario"
-        ) %>% 
+        ) %>%
         cal_month_options(
           startDayOfWeek = 1,
           daynames = c("L", "M", "X", "J", "V", "S", "D"),
           visibleWeeksCount = TRUE,
-        ) %>% 
+        ) %>%
         cal_week_options(
           startDayOfWeek = 1,
           daynames = c("L", "M", "X", "J", "V", "S", "D")
-        ) 
+        )
 
       return(x)
     })
   }
-  
+
 )
