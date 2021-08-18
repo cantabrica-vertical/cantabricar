@@ -24,6 +24,7 @@ Imports:
     lubridate,
     magrittr,
     posterior,
+    keyring,
     purrr,
     rjson,
     scales,
