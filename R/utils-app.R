@@ -49,7 +49,8 @@ get_values <- function(con = NULL){
         variedad = unique(tb$valor[tb$tipo=="variedad"]),
         marca = unique(tb$valor[tb$tipo=="marca"]),
         medio_siembra = unique(tb$valor[tb$tipo=="medio_siembra"]),
-        planta_tipo = unique(tb$valor[tb$tipo=="planta_tipo"])
+        planta_tipo = unique(tb$valor[tb$tipo=="planta_tipo"]),
+        luz = unique(tb$valor[tb$tipo=="luz"])
     )
     return(x)
 }

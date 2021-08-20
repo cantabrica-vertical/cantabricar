@@ -37,7 +37,8 @@ Imports:
     tibble,
     tidyr,
     toastui,
-    DT
+    DT,
+    shinyWidgets
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

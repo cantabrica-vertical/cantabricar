@@ -19,7 +19,7 @@ check_azure_password <- function(){
 #' @export launch_app
 #' @importFrom shiny shinyAppDir
 launch_app <- function(){
-    app_dir <- paste(.libPaths()[1], "cantabricar", "cantabrica-app", sep = .Platform$file.sep)
+    app_dir <- system.file("cantabrica-app", package = "cantabricar")
     if (!dir.exists(app_dir)) {
         stop("Could not find example directory. Try re-installing cantabricar.", call. = FALSE)
     }

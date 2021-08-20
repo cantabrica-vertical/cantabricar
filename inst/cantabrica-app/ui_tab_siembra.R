@@ -7,7 +7,7 @@ tab_siembra <- function() {
             title = "Siembra",
             box(
                 title = "Nueva siembra",
-                background = "aqua",
+                status = "success",
                 width = 4,
                 fluidRow(
                     column(
@@ -74,16 +74,15 @@ tab_siembra <- function() {
                             label = "Calor",
                             value = FALSE
                         ),
-                        radioButtons(
-                            inputId = "database_siembra_luz",
-                            label = "Luz/Oscuridad",
-                            choices = c("Luz", "Oscuridad"),
-                            inline = FALSE
+                        checkboxInput(
+                            inputId = "database_siembra_domo",
+                            label = "Domo",
+                            value = FALSE
                         ),
                         checkboxInput(
-                          inputId = "database_siembra_peso",
-                          label = "Peso",
-                          value = FALSE
+                            inputId = "database_siembra_peso",
+                            label = "Peso",
+                            value = FALSE
                         ),
                         textInput(
                             inputId = "database_siembra_comentarios",
@@ -96,17 +95,16 @@ tab_siembra <- function() {
                 actionButton("database_nueva_siembra", "Guardar")
             ),
             box(
-              title = "Borrar siembra",
-              solidHeader = TRUE,
-              status = "danger",
-              selectInput(
-                  inputId = "database_eliminar_siembra_id",
-                  label = "ID",
-                  choices = d$sembradas$id,
-                  selected = NULL
-              ),
-              br(),
-              actionButton("database_siembra_eliminar_button", "Eliminar")
+                title = "Borrar siembra",
+                status = "danger",
+                selectInput(
+                    inputId = "database_eliminar_siembra_id",
+                    label = "ID",
+                    choices = d$sembradas$id,
+                    selected = NULL
+                ),
+                br(),
+                actionButton("database_siembra_eliminar_button", "Eliminar")
             ),
             box(
                 title = "Nuevos valores",
@@ -142,11 +140,10 @@ tab_siembra <- function() {
                     ),
                     actionButton("database_siembra_nuevo_tipo_button", "Guardar")
                 )
-            ),
-            box(
-                width = 4,
-                DT::dataTableOutput(outputId = "siembra_table")
             )
+        ),
+        fluidRow(
+            DT::dataTableOutput(outputId = "siembra_table")
         )
     )
 }
