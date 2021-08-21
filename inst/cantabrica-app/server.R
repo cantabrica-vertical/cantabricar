@@ -92,8 +92,8 @@ shinyServer(
         geom_text(aes(label = id)) +
         labs(x = "Bandeja", y = "Estantaria", fill = "Fase") +
         coord_fixed() +
-        scale_x_continuous(limits = c(0, 10), breaks = 1:10) +
-        scale_y_continuous(limits = c(0, 10), breaks = 1:10) +
+        scale_x_continuous(limits = c(0, 11), breaks = 1:10) +
+        scale_y_continuous(limits = c(0, 11), breaks = 1:10) +
         theme_custom() +
         theme(
           legend.position = "top",
@@ -104,15 +104,33 @@ shinyServer(
       ggplotly(x, tooltip = "text")
     })
 
+    output$dashboard_fechas_plot <- renderPlotly({
+      x <- summarise_data(con) %>%
+        count(fecha_siembra,  especie) %>%
+        group_by(especie) %>%
+        mutate(n_cum = cumsum(n)) %>%
+        ungroup() %>%
+        ggplot(
+          aes(fecha_siembra, n_cum, fill = especie, colour = especie,
+              text = paste0(especie, ": n=", n_cum, " (", as_date(fecha_siembra), ")"))
+        ) +
+        geom_line(size = 1) +
+        labs(x = "Fecha de siembra", y = "# siembras", colour = "Especie") +
+        theme_custom() +
+        theme(
+          legend.position = "top",
+        )
+      ggplotly(x, tooltip = "text")
+    })
+
     output$dashboard_species_plot <- renderPlotly({
       x <- summarise_data(con) %>%
         count(especie) %>%
         mutate(prop = n/sum(.$n)) %>%
-        ggplot(aes(x = 1, y = prop, fill = especie, text = paste0(especie, " (n=", n, ", ", round(prop, 2), "%)"))) +
+        ggplot(aes(x = 1, y = prop, fill = especie, text = paste0(especie, " (n=", n, ", ", round(prop*100, 2), "%)"))) +
         geom_bar(stat = "identity") +
-        labs(fill = "Especie") +
-        coord_flip() +
-        scale_x_continuous(limits = c(0, 2)) +
+        labs(fill = "Especie", y = "%") +
+        scale_x_continuous(limits = c(0.5, 1.5)) +
         theme_void() +
         theme(
           legend.position = "none"
@@ -160,8 +178,7 @@ shinyServer(
           view = "month",
           useDetailPopup = TRUE,
           isReadOnly = TRUE,
-          useNavigation = TRUE,
-          elementId = "calendario",
+          useNavigation = TRUE
         ) %>%
         cal_week_options(
           startDayOfWeek = 1,
@@ -215,6 +232,7 @@ shinyServer(
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Germinaciones (1/3)")
       fit_germinacion <<- fit_model(
+        data = d_all %>% drop_na(t_germinacion) %>% select(id, t_germinacion) %>% mutate(t_germinacion = as.integer(t_germinacion)) %>% rename(y = t_germinacion),
         type = "germinacion",
         save = system.file("RDS", "fit_germinacion.rds", package = "cantabricar"),
         lambda_prior_alpha = ceiling(fit_germinacion$summary()$mean[2]),
@@ -222,6 +240,7 @@ shinyServer(
       )
       show_modal_spinner(spin = "semipolar", color = "Crimson", text = "Hojas verdaderas (2/3)")
       fit_hojas <<- fit_model(
+        data = d_all %>% drop_na(t_hojas) %>% select(id, t_hojas) %>% mutate(t_hojas = as.integer(t_hojas)) %>% rename(y = t_hojas),
         type = "hojas",
         save = system.file("RDS", "fit_hojas.rds", package = "cantabricar"),
         lambda_prior_alpha = ceiling(fit_hojas$summary()$mean[2]),
@@ -229,6 +248,7 @@ shinyServer(
       )
       show_modal_spinner(spin = "semipolar", color = "DarkOrange", text = "Cosechas (3/3)")
       fit_cosecha <<- fit_model(
+        data = d_all %>% drop_na(t_cosecha) %>% select(id, t_cosecha) %>% mutate(t_cosecha = as.integer(t_cosecha)) %>% rename(y = t_cosecha),
         type = "cosecha",
         save = system.file("RDS", "fit_cosecha.rds", package = "cantabricar"),
         lambda_prior_alpha = ceiling(fit_cosecha$summary()$mean[2]),

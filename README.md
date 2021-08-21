@@ -18,7 +18,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 ``` r
 if !("devtools" %in% installed.packages()) install.packages("devtools")
 if !("keyring" %in% installed.packages()) install.packages("keyring")
-key_set_with_value("cantabrica", "cantabrica-admin", "XXXXXXXX") # sustituir XXXXXX con la contraseña de Azure
+keyring::key_set_with_value("cantabrica", "cantabrica-admin", "XXXXXXXX") # sustituir XXXXXX con la contraseña de Azure
 devtools::install_github("cantabrica-vertical/cantabricar")
 ```
 

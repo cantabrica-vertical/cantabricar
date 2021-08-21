@@ -2,8 +2,7 @@ data {
   int<lower=0> N;
   int<lower=0> y[N];
   int<lower=0> lambda_prior_alpha;
-    int<lower=0> lambda_prior_beta;
-
+  int<lower=0> lambda_prior_beta;
 }
 
 parameters {
