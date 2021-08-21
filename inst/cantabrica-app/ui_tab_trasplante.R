@@ -55,7 +55,7 @@ tab_trasplante <- function() {
                 ),
                 box(
                     title = "Borrar trasplante",
-                    solidHeader = TRUE,
+                    solidHeader = FALSE,
                     status = "danger",
                     selectInput(
                         inputId = "database_eliminar_trasplante_id",
