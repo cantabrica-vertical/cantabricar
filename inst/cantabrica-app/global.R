@@ -25,13 +25,25 @@ library(toastui)
 library(lubridate)
 library(scales)
 
-(),
-Driver = "SQL Server",
-server = "tcp:cantabrica.database.windows.net",
-database = "cantabrica",
-uid = "cantabrica-admin",
-pwd = key_get("cantabrica", "cantabrica-admin")
-)
+# connect to database
+#' @importFrom keyring key_set
+set_password <- function(){
+    key_set("cantabrica", "cantabrica-admin")
+}
+
+#' @importFrom DBI dbConnect
+#' @importFrom odbc odbc
+#' @importFrom keyring key_get
+#' @export get_connection
+get_connection <- function(){
+    dbConnect(
+        odbc(),
+        Driver = "SQL Server",
+        server = "tcp:cantabrica.database.windows.net",
+        database = "cantabrica",
+        uid = "cantabrica-admin",
+        pwd = key_get("cantabrica", "cantabrica-admin")
+    )
 }
 
 #' @importFrom DBI dbReadTable
@@ -65,7 +77,7 @@ summarise_data <- function(con = NULL, data = NULL){
             mutate(
                 t_germinacion = difftime(fecha_germinacion, fecha_siembra, units = "days"),
                 t_hojas = difftime(fecha_hojas, fecha_siembra, units = "days"),
-                t_cosecha = difftime(fecha_cosecha, fecha_siembra, units = "days"),
+                t_cosecha = difftime(fecha_cosecha, fecha_siembra, units = "days")
             ) %>%
             ungroup() %>%
             arrange(desc(fecha_siembra), desc(id)) %>%
