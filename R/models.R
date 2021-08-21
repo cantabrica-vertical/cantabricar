@@ -11,7 +11,7 @@ fit_model <- function(
     type,
     data = NULL,
     lambda_prior_alpha = 15,
-    lambda_prior_beta = 15,
+    lambda_prior_beta = 1,
     save = NULL,
     ...
 ){

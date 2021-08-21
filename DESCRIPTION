@@ -1,13 +1,13 @@
 Package: cantabricar
-Title: What the Package Does (One Line, Title Case)
+Title: Una ShinyApp para gestionar las cosechas de Cantabrica Agricultura Urbana
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person(given = "Gonzalo",
+           family = "Garcia-Castro",
+           role = c("aut", "cre", "man"),
+           email = "gonzaloggc95@gmail.com",
+           comment = c(ORCID = "0000-0002-8553-4209"))
+Description: Esta app (y funciones asociadas) permite gestionar una base de datos SQL de forma interactiva supervisar cosechas, estimar tiempos de germinación y cosecha, y llevar un calendario de cosechas, entre otras cosas..
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -38,7 +38,8 @@ Imports:
     tidyr,
     toastui,
     DT,
-    shinyWidgets
+    shinyWidgets,
+    plotly
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

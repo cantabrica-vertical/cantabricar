@@ -6,7 +6,10 @@ tab_dashboard <- function() {
             fluidRow(actionButton("actualizar", "Actualizar", icon("sync"), style = "color: #fff; background-color: red; border-color: red"),),
             br(),
             br(),
-            fluidRow(box(title = "Monitor de actividad", width = 3, img(src = "logo.jpg", width = 100, height = 100, alt = "Logo"))),
+            fluidRow(
+                box(title = "Monitor de actividad", width = 3, img(src = "logo.jpg", width = 100, height = 100, alt = "Logo")),
+                box(title = "Estanterias", width = 9, plotlyOutput("dashboard_estanterias_plot"))
+                ),
             br(),
             br(),
             column(
@@ -19,7 +22,7 @@ tab_dashboard <- function() {
             ),
             column(
                 width = 6,
-                box(title = "Plantas sembradas", width = 12, plotOutput(outputId = "dashboard_species_plot"))
+                box(title = "Plantas sembradas", width = 12, plotlyOutput(outputId = "dashboard_species_plot"))
             )
         )
     )

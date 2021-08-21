@@ -12,7 +12,7 @@ tab_datos <- function() {
                         label = "Mostrar",
                         choices = names(d_all),
                         selected = c(
-                            "id", "especie", "variedad", "marca", "tipo", "fecha_siembra",
+                            "id", "especie", "estanteria", "bandeja", "variedad", "marca", "tipo", "fecha_siembra",
                             "fecha_germinacion", "fecha_hojas", "fecha_trasplace", "fecha_cosecha"
                         ),
                         list(`actions-box` = TRUE),

@@ -70,20 +70,54 @@ shinyServer(
 
 
     ## dashboard ----
-    output$dashboard_species_plot <- renderPlot({
-      summarise_data(con) %>%
+    output$dashboard_estanterias_plot <- renderPlotly({
+      x <- summarise_data(con) %>%
+        filter(is.na(t_cosecha)) %>%
+        mutate(
+          status = case_when(
+            !is.na(t_germinacion) ~ "Germinada",
+            !is.na(t_hojas) ~ "Hojas verdaderas",
+            TRUE ~ "Sembrada"
+          )) %>%
+        right_join(expand_grid(estanteria = 1:10, bandeja = 1:10)) %>%
+        replace_na(replace = list(status = "Vacia")) %>%
+        ggplot(
+          aes(bandeja, estanteria, fill = status,
+              text = paste0(
+                especie, " ", variedad, " (ID: ", id, ") \n",
+                "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fit_cosecha$summary()$median[2])))
+          )
+        ) +
+        geom_tile(colour = "white", size = 1) +
+        geom_text(aes(label = id)) +
+        labs(x = "Bandeja", y = "Estantaria", fill = "Fase") +
+        coord_fixed() +
+        scale_x_continuous(limits = c(0, 10), breaks = 1:10) +
+        scale_y_continuous(limits = c(0, 10), breaks = 1:10) +
+        theme_custom() +
+        theme(
+          legend.position = "top",
+          axis.ticks = element_blank(),
+          panel.grid = element_blank(),
+          strip.text.y = element_text(angle = 0)
+        )
+      ggplotly(x, tooltip = "text")
+    })
+
+    output$dashboard_species_plot <- renderPlotly({
+      x <- summarise_data(con) %>%
         count(especie) %>%
         mutate(prop = n/sum(.$n)) %>%
-        ggplot(aes(x = 2, y = prop, fill = especie)) +
+        ggplot(aes(x = 1, y = prop, fill = especie, text = paste0(especie, " (n=", n, ", ", round(prop, 2), "%)"))) +
         geom_bar(stat = "identity") +
         labs(fill = "Especie") +
-        coord_polar("y", start = 300) +
-        scale_x_continuous(limits = c(0, 2.5)) +
+        coord_flip() +
+        scale_x_continuous(limits = c(0, 2)) +
         theme_void() +
         theme(
-          legend.title = element_text(size = 15),
-          legend.text = element_text(size = 15)
+          legend.position = "none"
         )
+      ggplotly(x, tooltip = "text")
     })
 
 
@@ -143,9 +177,8 @@ shinyServer(
       x <- summarise_data(con) %>%
         mutate_at(vars(starts_with("t_")), function(x) ifelse(is.na(x), "-", x)) %>%
         mutate_at(vars(starts_with("fecha_")), as_date) %>%
-        select(
-          input$datos_cols
-        ) %>%
+        relocate(estanteria, bandeja, .after = id) %>%
+        select(input$datos_cols) %>%
         arrange(desc(fecha_siembra), desc(id))
 
       DT::datatable(
@@ -217,12 +250,13 @@ shinyServer(
 
     })
 
+    # estimaciones germinacion
     output$estimaciones_germinacion_plot <- renderPlot({
       x <- fit_germinacion
       plot_model(x)
     })
 
-    ## hojas
+    # estimaciones hojas
     output$estimaciones_hojas_table <- renderDataTable({
       x <- fit_hojas$summary()
       datatable(
@@ -239,7 +273,7 @@ shinyServer(
       plot_model(x)
     })
 
-    ## hojas
+    # estimaciones cosecha
     output$estimaciones_cosecha_table <- renderDataTable({
       x <- fit_cosecha$summary()
       datatable(
@@ -278,6 +312,13 @@ shinyServer(
         domo = input$database_siembra_domo,
         peso_semillas = input$database_siembra_peso_semillas,
         comentarios = input$database_siembra_comentarios
+      )
+      add_data_row(
+        con, "estanterias",
+        estanteria = as.integer(input$database_siembra_estanteria),
+        bandeja = as.integer(input$database_siembra_bandeja),
+        id = input$database_siembra_id,
+        fecha_estanteria = input$database_siembra_date
       )
       d <<- get_data(con)
       remove_modal_spinner()

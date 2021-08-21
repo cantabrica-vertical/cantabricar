@@ -12,97 +12,39 @@ tab_siembra <- function() {
                 fluidRow(
                     column(
                         width = 6,
-                        dateInput(
-                            inputId = "database_siembra_date",
-                            label = "Fecha",
-                            value = today(),
-                            language = "es",
-                            max = today()
-                        ),
-                        textInput(
-                            inputId = "database_siembra_id",
-                            label = "ID",
-                            value = max(as.numeric(d$plantas$id))+1,
-                            placeholder = max(as.numeric(d$plantas$id))+1
-                        ),
-                        selectInput(
-                            inputId = "database_siembra_especie",
-                            label = "Especie",
-                            choices = values$especie,
-                            selected = "Albahaca",
-                            multiple = FALSE
-                        ),
-                        selectInput(
-                            inputId = "database_siembra_variedad",
-                            label = "Variedad",
-                            choices = values$variedad,
-                            selected = NULL,
-                            multiple = FALSE
-                        ),
-                        selectInput(
-                            inputId = "database_siembra_planta_tipo",
-                            label = "Tipo de planta",
-                            choices = values$planta_tipo,
-                            selected = NULL,
-                            multiple = FALSE
-                        )
+                        dateInput(inputId = "database_siembra_date", label = "Fecha", value = today(), language = "es", max = today()),
+                        textInput(inputId = "database_siembra_id", label = "ID", value = max(as.numeric(d$plantas$id))+1, placeholder = max(as.numeric(d$plantas$id))+1),
+                        selectInput(inputId = "database_siembra_especie", label = "Especie", choices = values$especie, selected = "Albahaca", multiple = FALSE),
+                        selectInput(inputId = "database_siembra_variedad", label = "Variedad", choices = values$variedad, selected = NULL, multiple = FALSE),
+                        selectInput(inputId = "database_siembra_planta_tipo", label = "Tipo de planta", choices = values$planta_tipo, selected = NULL, multiple = FALSE)
                     ),
                     column(
                         width = 6,
-                        selectInput(
-                            inputId = "database_siembra_marca",
-                            label = "Marca",
-                            choices = values$marca,
-                            selected = NULL,
-                            multiple = FALSE
-                        ),
-                        selectInput(
-                            inputId = "database_siembra_medio_siembra",
-                            label = "Medio de siembra",
-                            choices = values$medio_siembra,
-                            selected = NULL,
-                            multiple = FALSE
-                        ),
-                        numericInput(
-                            inputId = "database_siembra_peso_semillas",
-                            label = "Semillas (g)",
-                            min = 0,
-                            value = 0
-                        ),
-                        checkboxInput(
-                            inputId = "database_siembra_calor",
-                            label = "Calor",
-                            value = FALSE
-                        ),
-                        checkboxInput(
-                            inputId = "database_siembra_domo",
-                            label = "Domo",
-                            value = FALSE
-                        ),
-                        checkboxInput(
-                            inputId = "database_siembra_peso",
-                            label = "Peso",
-                            value = FALSE
-                        ),
-                        textInput(
-                            inputId = "database_siembra_comentarios",
-                            label = "Comentarios",
-                            value = ""
-                        )
+                        selectInput(inputId = "database_siembra_marca", label = "Marca", choices = values$marca, selected = NULL, multiple = FALSE),
+                        selectInput(inputId = "database_siembra_medio_siembra", label = "Medio de siembra", choices = values$medio_siembra, selected = NULL, multiple = FALSE),
+                        numericInput(inputId = "database_siembra_peso_semillas", label = "Semillas (g)", min = 0, value = 0),
+                        checkboxInput(inputId = "database_siembra_calor", label = "Calor", value = FALSE),
+                        checkboxInput(inputId = "database_siembra_domo", label = "Domo", value = FALSE),
+                        checkboxInput(inputId = "database_siembra_peso", label = "Peso", value = FALSE),
+                        textInput(inputId = "database_siembra_comentarios", label = "Comentarios", value = "")
+                    )
+                ),
+                fluidRow(
+                    column(
+                        width = 6,
+                        numericInput(inputId = "database_siembra_estanteria", label = "Estanteria", value = 0, min = 1, step = 1),
+                        numericInput(inputId = "database_siembra_bandeja", label = "Bandeja", value = 0, min = 1, step = 1),
                     )
                 ),
                 br(),
-                actionButton("database_nueva_siembra", "Guardar")
+                fluidRow(
+                    actionButton("database_nueva_siembra", "Guardar")
+                )
             ),
             box(
                 title = "Borrar siembra",
                 status = "danger",
-                selectInput(
-                    inputId = "database_eliminar_siembra_id",
-                    label = "ID",
-                    choices = d$sembradas$id,
-                    selected = NULL
-                ),
+                selectInput(inputId = "database_eliminar_siembra_id", label = "ID", choices = d$sembradas$id, selected = NULL),
                 br(),
                 actionButton("database_siembra_eliminar_button", "Eliminar")
             ),
@@ -111,33 +53,18 @@ tab_siembra <- function() {
                 width = 4,
                 column(
                     width = 6,
-                    textInput(
-                        inputId = "database_siembra_nuevo_especie",
-                        label = "Nueva especie"
-                    ),
+                    textInput( inputId = "database_siembra_nuevo_especie", label = "Nueva especie"),
                     actionButton("database_siembra_nuevo_especie_button", "Guardar"),
-                    textInput(
-                        inputId = "database_siembra_nuevo_variedad",
-                        label = "Nueva variedad"
-                    ),
+                    textInput(inputId = "database_siembra_nuevo_variedad", label = "Nueva variedad"),
                     actionButton("database_siembra_nuevo_variedad_button", "Guardar"),
-                    textInput(
-                        inputId = "database_siembra_nuevo_marca",
-                        label = "Nueva marca"
-                    ),
+                    textInput(inputId = "database_siembra_nuevo_marca", label = "Nueva marca"),
                     actionButton("database_siembra_nuevo_marca_button", "Guardar"),
                 ),
                 column(
                     width = 6,
-                    textInput(
-                        inputId = "database_siembra_nuevo_medio",
-                        label = "Nuevo medio de siembra"
-                    ) ,
+                    textInput(inputId = "database_siembra_nuevo_medio", label = "Nuevo medio de siembra"),
                     actionButton("database_siembra_nuevo_medio_button", "Guardar"),
-                    textInput(
-                        inputId = "database_siembra_nuevo_tipo",
-                        label = "Nuevo tipo"
-                    ),
+                    textInput(inputId = "database_siembra_nuevo_tipo", label = "Nuevo tipo"),
                     actionButton("database_siembra_nuevo_tipo_button", "Guardar")
                 )
             )
