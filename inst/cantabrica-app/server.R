@@ -78,14 +78,19 @@ shinyServer(
             !is.na(t_germinacion) ~ "Germinada",
             !is.na(t_hojas) ~ "Hojas verdaderas",
             TRUE ~ "Sembrada"
-          )) %>%
+          )
+        ) %>%
         right_join(expand_grid(estanteria = 1:10, bandeja = 1:10)) %>%
         replace_na(replace = list(status = "Vacia")) %>%
+        mutate(texto = ifelse(
+          status=="Vacia", "Estanteria vacia", paste0(
+            especie, " ", variedad, " (ID: ", id, ") \n",
+            "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fit_cosecha$summary()$median[2]))
+          ))
+        ) %>%
         ggplot(
           aes(bandeja, estanteria, fill = status,
-              text = paste0(
-                especie, " ", variedad, " (ID: ", id, ") \n",
-                "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fit_cosecha$summary()$median[2])))
+              text = texto
           )
         ) +
         geom_tile(colour = "white", size = 1) +
