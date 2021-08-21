@@ -70,7 +70,7 @@ summarise_data <- function(con = NULL, data = NULL){
     suppressMessages({
         x <- map(
             data, function(x) select(x, -matches("comentarios")) %>%
-                mutate_at(vars(matches("id")), as.character)
+                mutate_at(vars(matches("id")), as.integer)
         ) %>%
             reduce(left_join) %>%
             rowwise() %>%

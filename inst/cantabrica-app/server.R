@@ -40,7 +40,7 @@ shinyServer(
     inactive_ids <- reactive({map(d, function(x) filter(x, id %in% d$cosechadas$id) %>% pull(id))})
 
     observe({
-      updateTextInput(session, "database_siembra_id", value = max(as.numeric(active_ids()$sembradas))+1, placeholder = max(as.numeric(active_ids()$sembradas))+1)
+      updateTextInput(session, "database_siembra_id", value = max(as.numeric(active_ids()$sembradas[!vapply(active_ids()$sembradas, is.null, TRUE)]), na.rm = TRUE)+1, placeholder = max(as.numeric(active_ids()$sembradas[!vapply(active_ids()$sembradas, is.null, TRUE)]), na.rm = TRUE)+1)
       updateSelectInput(session, "database_germinacion_id", choices = active_ids()$sembradas)
       updateSelectInput(session, "database_hojas_id", choices = active_ids()$sembradas)
       updateSelectInput(session, "database_trasplante_id",choices = active_ids()$sembradas)
@@ -71,8 +71,9 @@ shinyServer(
 
     ## dashboard ----
     output$dashboard_estanterias_plot <- renderPlotly({
+      print(active_ids()$sembradas)
       x <- summarise_data(con) %>%
-        filter(is.na(t_cosecha)) %>%
+        filter(id %in% active_ids()$sembradas) %>%
         mutate(
           status = case_when(
             !is.na(t_germinacion) ~ "Germinada",
@@ -317,37 +318,47 @@ shinyServer(
 
     ## siembra ----
     observeEvent(input$database_nueva_siembra, {
-      Sys.sleep(1.5)
-      show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      add_data_row(
-        con, "plantas",
-        id = input$database_siembra_id,
-        especie = input$database_siembra_especie,
-        variedad = input$database_siembra_variedad,
-        planta_tipo = input$database_siembra_planta_tipo,
-        comentarios = input$database_siembra_comentarios
-      )
-      add_data_row(
-        con, "sembradas",
-        id = input$database_siembra_id,
-        fecha_siembra = input$database_siembra_date,
-        medio_siembra = input$database_siembra_medio_siembra,
-        peso = input$database_siembra_peso,
-        calor = input$database_siembra_calor,
-        domo = input$database_siembra_domo,
-        peso_semillas = input$database_siembra_peso_semillas,
-        comentarios = input$database_siembra_comentarios
-      )
-      add_data_row(
-        con, "estanterias",
-        estanteria = as.integer(input$database_siembra_estanteria),
-        bandeja = as.integer(input$database_siembra_bandeja),
-        id = input$database_siembra_id,
-        fecha_estanteria = input$database_siembra_date
-      )
-      d <<- get_data(con)
-      remove_modal_spinner()
-      session$reload()
+      if (is.null(input$database_siembra_id)){
+        showshinyalert("El ID no puede estar vacio")
+      } else if (input$database_siembra_id %in% active_ids()) {
+        showshinyalert("El ID ya existente")
+      } else if (input$database_siembra_estanteria %in% 1:10) {
+        showshinyalert("Estantería no disponible")
+      } else if (input$database_siembra_bandeja %in% 1:10) {
+        showshinyalert("Bandeja no disponible")
+      } else {
+        Sys.sleep(1.5)
+        show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
+        add_data_row(
+          con, "plantas",
+          id = input$database_siembra_id,
+          especie = input$database_siembra_especie,
+          variedad = input$database_siembra_variedad,
+          planta_tipo = input$database_siembra_planta_tipo,
+          comentarios = input$database_siembra_comentarios
+        )
+        add_data_row(
+          con, "sembradas",
+          id = input$database_siembra_id,
+          fecha_siembra = input$database_siembra_date,
+          medio_siembra = input$database_siembra_medio_siembra,
+          peso = input$database_siembra_peso,
+          calor = input$database_siembra_calor,
+          domo = input$database_siembra_domo,
+          peso_semillas = input$database_siembra_peso_semillas,
+          comentarios = input$database_siembra_comentarios
+        )
+        add_data_row(
+          con, "estanterias",
+          estanteria = as.integer(input$database_siembra_estanteria),
+          bandeja = as.integer(input$database_siembra_bandeja),
+          id = input$database_siembra_id,
+          fecha_estanteria = input$database_siembra_date
+        )
+        d <<- get_data(con)
+        remove_modal_spinner()
+        session$reload()
+      }
     })
 
     observeEvent(input$database_siembra_eliminar_button, {
@@ -530,7 +541,7 @@ shinyServer(
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       add_data(
-        con, "trasplante",
+        con, "trasplantadas",
         id = input$database_trasplante_id,
         fecha_trasplante = input$database_trasplante_date,
         medio_trasplante = input$database_trasplante_medio_trasplante,
@@ -581,7 +592,7 @@ shinyServer(
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       add_data_row(
-        con, "cosecha",
+        con, "cosechadas",
         id = input$database_cosecha_id,
         fecha_cosecha = input$database_cosecha_date,
         comentarios = input$database_cosecha_comentarios

@@ -13,7 +13,11 @@ tab_siembra <- function() {
                     column(
                         width = 6,
                         dateInput(inputId = "database_siembra_date", label = "Fecha", value = today(), language = "es", max = today()),
-                        textInput(inputId = "database_siembra_id", label = "ID", value = max(as.numeric(d$plantas$id))+1, placeholder = max(as.numeric(d$plantas$id))+1),
+                        numericInput(inputId = "database_siembra_id",
+                                     label = "ID",
+                                     value = max(as.numeric(d$plantas$id), na.rm = TRUE)+1,
+                                     min = max(as.numeric(d$plantas$id), na.rm = TRUE)+1,
+                                     step = 1),
                         selectInput(inputId = "database_siembra_especie", label = "Especie", choices = values$especie, selected = "Albahaca", multiple = FALSE),
                         selectInput(inputId = "database_siembra_variedad", label = "Variedad", choices = values$variedad, selected = NULL, multiple = FALSE),
                         selectInput(inputId = "database_siembra_planta_tipo", label = "Tipo de planta", choices = values$planta_tipo, selected = NULL, multiple = FALSE)
@@ -53,7 +57,7 @@ tab_siembra <- function() {
                 width = 4,
                 column(
                     width = 6,
-                    textInput( inputId = "database_siembra_nuevo_especie", label = "Nueva especie"),
+                    textInput(inputId = "database_siembra_nuevo_especie", label = "Nueva especie"),
                     actionButton("database_siembra_nuevo_especie_button", "Guardar"),
                     textInput(inputId = "database_siembra_nuevo_variedad", label = "Nueva variedad"),
                     actionButton("database_siembra_nuevo_variedad_button", "Guardar"),
