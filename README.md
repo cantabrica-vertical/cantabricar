@@ -11,7 +11,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## Installación
 
-1.  Descargar R (en caso de que no esté descargado ya)
+1.  Descargar [R](https://ftp.cixug.es/CRAN/) (en caso de que no esté
+    descargado ya)
 2.  Abrir R y ejecutar los siguientes comandos en la consola:
 
 ``` r
