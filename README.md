@@ -11,18 +11,18 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 ## Installación
 
-1.  Descargar [R](https://ftp.cixug.es/CRAN/) (en caso de que no esté
+-   Descargar [R](https://ftp.cixug.es/CRAN/) (en caso de que no esté
     descargado ya)
-2.  Abrir R y ejecutar los siguientes comandos en la consola:
+-   Abrir R y ejecutar los siguientes comandos en la consola:
 
 ``` r
 if !("devtools" %in% installed.packages()) install.packages("devtools")
 if !("keyring" %in% installed.packages()) install.packages("keyring")
 keyring::key_set_with_value("cantabrica", "cantabrica-admin", "XXXXXXXX") # sustituir XXXXXX con la contraseña de Azure
-devtools::install_github("cantabrica-vertical/cantabricar")
+devtools::install_github("cantabricagr/cantabricar")
 ```
 
-1.  Ejecutar la app con el siguiente comando en la consola de R:
+-   Ejecutar la app con el siguiente comando en la consola de R:
 
 ``` r
 library(cantabricar)
