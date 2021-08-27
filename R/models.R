@@ -1,6 +1,7 @@
 # fit models
 
 #' Fit germinacion model
+#' @export fit_model
 #' @import cmdstanr
 #' @param type Type of data to fit. One of "germinacion", "hojas", or "cosecha".
 #' @param data Data frame with a row for each plant and at least one column with the germination days
@@ -28,6 +29,7 @@ fit_model <- function(
 
 
 #' Diagnose germination model using CmdStan diagnostics
+#' @export get_diagnostics
 #' @import cmdstanr
 #' @param fit CmdStanFit object (output from \code{fit_germination})
 get_diagnostics <- function(fit){
@@ -42,6 +44,7 @@ get_loo <- function(fit){
 }
 
 #' Get posterior draws
+#' @export get_draws
 #' @import cmdstanr
 #' @importFrom posterior as_draws_df
 #' @importFrom tidyr pivot_longer
@@ -63,6 +66,7 @@ get_draws <- function(
 }
 
 #' Get posterior predictions
+#' @export get_post_preds
 #' @import cmdstanr
 #' @importFrom rjson fromJSON
 #' @importFrom posterior as_draws_matrix
@@ -84,6 +88,7 @@ get_post_preds <- function(
 }
 
 #' Get prior predictions
+#' @export get_prior_preds
 #' @import cmdstanr
 #' @importFrom rjson fromJSON
 #' @importFrom posterior as_draws_matrix
@@ -104,8 +109,10 @@ get_prior_preds <- function(
 }
 
 #' Plot MCMC posterior draws as a histogram
+#' @export plot_model
 #' @import cmdstanr
 #' @import ggplot2
+#' @importFrom bayesplot mcmc_hist
 #' @importFrom dplyr mutate
 #' @param draws Posterior draws from a CmdStanFit object (output from \code{draws_germination})
 plot_model <- function(
@@ -142,3 +149,4 @@ plot_model <- function(
             axis.title = element_text(colour = "black", size = 15)
         )
 }
+

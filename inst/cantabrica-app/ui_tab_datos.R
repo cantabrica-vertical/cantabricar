@@ -7,17 +7,7 @@ tab_datos <- function() {
                     downloadButton("descargar", "Descargar", icon("download")),
                     br(),
                     br(),
-                    pickerInput(
-                        inputId = "datos_cols",
-                        label = "Mostrar",
-                        choices = names(d_all),
-                        selected = c(
-                            "id", "especie", "estanteria", "bandeja", "variedad", "marca", "tipo", "fecha_siembra",
-                            "fecha_germinacion", "fecha_hojas", "fecha_trasplace", "fecha_cosecha"
-                        ),
-                        list(`actions-box` = TRUE),
-                        multiple = TRUE
-                    )
+                    pickerInput(inputId = "datos_cols", label = "Mostrar", choices = names(d_all), selected = c("id", "especie", "balda", "bandeja", "variedad", "marca", "tipo", "fecha_siembra", "fecha_germinacion", "fecha_hojas", "fecha_trasplace", "fecha_cosecha"), list(`actions-box` = TRUE), multiple = TRUE)
                 )
             ),
             br(),

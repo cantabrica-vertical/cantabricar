@@ -17,15 +17,17 @@ Imports:
     bayesplot,
     cmdstanr,
     DBI,
-    odbc,
+    DT,
     dbplyr,
     dplyr,
     ggplot2,
+    keyring,
     lifecycle,
     lubridate,
     magrittr,
+    odbc,
+    plotly,
     posterior,
-    keyring,
     purrr,
     rjson,
     scales,
@@ -33,13 +35,13 @@ Imports:
     shinybusy,
     shinydashboard,
     shinyjs,
+    shinyWidgets,
+    shinyWidgets,
     stringr,
     tibble,
     tidyr,
-    toastui,
-    DT,
-    shinyWidgets,
-    plotly
+    toastui
 Suggests: 
+    shinytest,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

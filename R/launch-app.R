@@ -1,20 +1,5 @@
 # app
 
-#' Check Azure password
-#' @importFrom keyring key_get
-#' @importFrom keyring key_set
-check_azure_password <- function(){
-    x <- tryCatch(
-        {
-            key_get("cantabrica", "cantabrica-admin")
-        },
-        error = function(cond){
-            key_set("cantabrica", "cantabrica-admin")
-        }
-    )
-        return(x)
-}
-
 #' Launch cantabrica-app
 #' @export launch_app
 #' @importFrom shiny shinyAppDir

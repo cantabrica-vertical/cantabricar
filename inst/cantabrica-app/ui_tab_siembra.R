@@ -12,15 +12,11 @@ tab_siembra <- function() {
                 fluidRow(
                     column(
                         width = 6,
-                        dateInput(inputId = "database_siembra_date", label = "Fecha", value = today(), language = "es", max = today()),
-                        numericInput(inputId = "database_siembra_id",
-                                     label = "ID",
-                                     value = max(as.numeric(d$plantas$id), na.rm = TRUE)+1,
-                                     min = max(as.numeric(d$plantas$id), na.rm = TRUE)+1,
-                                     step = 1),
+                        numericInput(inputId = "database_siembra_id", label = "ID", value = max(as.numeric(d$plantas$id), na.rm = TRUE)+1, min = max(as.numeric(d$plantas$id), na.rm = TRUE)+1, step = 1),
                         selectInput(inputId = "database_siembra_especie", label = "Especie", choices = values$especie, selected = "Albahaca", multiple = FALSE),
                         selectInput(inputId = "database_siembra_variedad", label = "Variedad", choices = values$variedad, selected = NULL, multiple = FALSE),
-                        selectInput(inputId = "database_siembra_planta_tipo", label = "Tipo de planta", choices = values$planta_tipo, selected = NULL, multiple = FALSE)
+                        selectInput(inputId = "database_siembra_planta_tipo", label = "Tipo de planta", choices = values$planta_tipo, selected = NULL, multiple = FALSE),
+                        selectInput(inputId = "database_siembra_bandeja", label = "Bandeja", choices = unique(bandejas_vacias), multiple = FALSE)
                     ),
                     column(
                         width = 6,
@@ -33,16 +29,12 @@ tab_siembra <- function() {
                         textInput(inputId = "database_siembra_comentarios", label = "Comentarios", value = "")
                     )
                 ),
-                fluidRow(
-                    column(
-                        width = 6,
-                        numericInput(inputId = "database_siembra_estanteria", label = "Estanteria", value = 0, min = 1, step = 1),
-                        numericInput(inputId = "database_siembra_bandeja", label = "Bandeja", value = 0, min = 1, step = 1),
-                    )
-                ),
                 br(),
                 fluidRow(
-                    actionButton("database_nueva_siembra", "Guardar")
+                    column(
+                        width = 12,
+                        actionButton("database_nueva_siembra", "Guardar")
+                    )
                 )
             ),
             box(

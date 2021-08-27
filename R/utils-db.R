@@ -1,9 +1,28 @@
-# connect to database
+# Connect to database
+#' @export set_password
 #' @importFrom keyring key_set
 set_password <- function(){
     key_set("cantabrica", "cantabrica-admin")
 }
 
+#' Check Azure password
+#' @export check_azure_password
+#' @importFrom keyring key_get
+#' @importFrom keyring key_set
+check_azure_password <- function(){
+    x <- tryCatch(
+        {
+            key_get("cantabrica", "cantabrica-admin")
+        },
+        error = function(cond){
+            key_set("cantabrica", "cantabrica-admin")
+        }
+    )
+    return(x)
+}
+
+#' Connect to Azure SQL server
+#' @export get_connection
 #' @importFrom DBI dbConnect
 #' @importFrom odbc odbc
 #' @importFrom keyring key_get
@@ -15,50 +34,65 @@ get_connection <- function(){
         server = "tcp:cantabrica.database.windows.net",
         database = "cantabrica",
         uid = "cantabrica-admin",
-        pwd = key_get("cantabrica", "cantabrica-admin")
+        pwd = check_azure_password()
     )
 }
 
+
+#' Retrieve all data
+#' @export get_data
 #' @importFrom DBI dbReadTable
+#' @importFrom purrr map
+#' @importFrom dplyr mutate_at
+#' @importFrom dplyr one_of
 get_data <- function(con = NULL){
     if (is.null(con)) con <- get_connection()
-    list(
+    x <- list(
         plantas = dbReadTable(con, "plantas"),
         sembradas = dbReadTable(con, "sembradas"),
         germinadas = dbReadTable(con, "germinadas"),
         hojas = dbReadTable(con, "hojas"),
         trasplantadas = dbReadTable(con, "trasplantadas"),
         cosechadas = dbReadTable(con, "cosechadas")
-    )
+    ) %>%
+        map(function(x) mutate_at(
+            x, vars(any_of(c("domo", "luz", "calor"))),
+            function(y) as.logical(as.integer(y))))
+    return(x)
 }
 
+#' Summarise all data into a table
+#' @export get_data_summary
 #' @import dplyr
 #' @importFrom DBI dbReadTable
 #' @importFrom purrr map
 #' @importFrom purrr reduce
-summarise_data <- function(con = NULL, data = NULL){
+get_data_summary <- function(con = NULL, data = NULL){
     if (is.null(con)) con <- get_connection()
     if (is.null(data)) data <- get_data(con)
 
     suppressMessages({
         x <- map(
             data, function(x) select(x, -matches("comentarios")) %>%
-                mutate_at(vars(matches("id")), as.character)
+                mutate_at(vars(matches("id")), as.integer)
         ) %>%
             reduce(left_join) %>%
             rowwise() %>%
             mutate(
                 t_germinacion = difftime(fecha_germinacion, fecha_siembra, units = "days"),
                 t_hojas = difftime(fecha_hojas, fecha_siembra, units = "days"),
-                t_cosecha = difftime(fecha_cosecha, fecha_siembra, units = "days"),
+                t_cosecha = difftime(fecha_cosecha, fecha_siembra, units = "days")
             ) %>%
             ungroup() %>%
             arrange(desc(fecha_siembra), desc(id)) %>%
-            left_join(get_estanterias())
+            left_join(get_bandejas()) %>%
+            arrange(-id)
     })
     return(x)
 }
 
+#' Get values for UI choices
+#' @export get_values
 #' @importFrom DBI dbReadTable
 get_values <- function(con = NULL){
     if (is.null(con)) con <- get_connection()
@@ -74,13 +108,62 @@ get_values <- function(con = NULL){
     return(x)
 }
 
+#' Get tray and shelve arrengements
+#' @export get_bandejas
 #' @importFrom DBI dbReadTable
-get_estanterias <- function(con = NULL){
+get_bandejas <- function(con = NULL){
     if (is.null(con)) con <- get_connection()
-    x <- dbReadTable(con, "estanterias")
+    x <- dbReadTable(con, "bandejas")
     return(x)
 }
 
+#' Get max number of trays and shelves
+#' @export get_instalaciones
+#' @importFrom DBI dbReadTable
+#' @importFrom tidyr drop_na
+get_instalaciones <- function(con = NULL){
+    if (is.null(con)) con <- get_connection()
+    x <- dbReadTable(con, "instalaciones") %>%
+        drop_na(fecha_instalaciones) %>%
+        arrange(fecha_instalaciones) %>%
+        slice_tail()
+    return(x)
+}
+
+#' Get empty trays
+#' @export get_bandejas_vacias
+#' @importFrom dplyr left_join
+#' @importFrom dplyr filter
+#' @importFrom tidyr unite
+#' @importFrom tidyr expand_grid
+#' @importFrom dplyr pull
+get_bandejas_vacias <- function(
+    con =  NULL,
+    data = NULL,
+    instalaciones = NULL,
+    bandejas = NULL
+){
+    if (is.null(data)) data <- get_data(con)
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    if (is.null(bandejas)) bandejas <- get_bandejas(con)
+
+    suppressMessages({
+        x <- expand_grid(
+            balda = 1:instalaciones$max_baldas,
+            bandeja = 1:instalaciones$max_bandejas
+        ) %>%
+            left_join(filter(bandejas, !(id %in% d$cosechadas$id)))
+            filter(is.na(id)) %>%
+            arrange(balda, bandeja) %>%
+            unite("bandeja", c(balda, bandeja), sep = "-") %>%
+            pull(bandeja)
+    })
+    return(x)
+}
+
+
+#' Add new values to UI choices
+#' @export add_values
 #' @importFrom DBI dbWriteTable
 #' @importFrom DBI dbReadTable
 add_values <- function(con = NULL, type, value){
@@ -90,6 +173,8 @@ add_values <- function(con = NULL, type, value){
     return(dbReadTable(con, "valores"))
 }
 
+#' Add new row to SQL table
+#' @export add_data_row
 #' @importFrom DBI dbWriteTable
 #' @importFrom DBI dbReadTable
 add_data_row <- function(con = NULL, table, ...){
@@ -99,6 +184,8 @@ add_data_row <- function(con = NULL, table, ...){
     return(dbReadTable(con, table))
 }
 
+#' Delete row from SQL table
+#' @export delete_data_row
 #' @importFrom DBI dbExecute
 #' @importFrom DBI dbReadTable
 delete_data_row <- function(con = NULL, table, id){
@@ -108,6 +195,8 @@ delete_data_row <- function(con = NULL, table, id){
     return(dbReadTable(con, table))
 }
 
+#' Create ID for new plant
+#' @export create_id
 #' @importFrom stringr str_extract
 #' @importFrom stringr str_remove_all
 create_id <- function(x, y){
@@ -115,4 +204,3 @@ create_id <- function(x, y){
     x <- x %>% str_remove_all(" |-") %>%  paste0(., "_", number+1) %>% tolower()
     return(x)
 }
-
