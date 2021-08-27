@@ -1,3 +1,5 @@
+# cantabricar 1.0.1
+
 # cantabricar 1.0.0
 
 ## Nuevas características

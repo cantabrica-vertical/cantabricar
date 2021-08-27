@@ -1,6 +1,6 @@
 Package: cantabricar
 Title: Una ShinyApp para gestionar las cosechas de Cantabrica Agricultura Urbana
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: 
     person(given = "Gonzalo",
            family = "Garcia-Castro",
