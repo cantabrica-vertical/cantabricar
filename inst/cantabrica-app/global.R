@@ -1,6 +1,7 @@
 # run this script when app is launched
 
 library(cantabricar)
+library(DBI)
 library(DT)
 library(dplyr)
 library(tidyr)
