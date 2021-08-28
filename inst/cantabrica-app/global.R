@@ -2,7 +2,11 @@
 
 library(cantabricar)
 library(DT)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 library(lubridate)
+library(purrr)
 library(plotly)
 library(shinydashboard)
 library(shinybusy)

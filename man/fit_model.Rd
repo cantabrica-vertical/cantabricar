@@ -6,6 +6,7 @@
 \usage{
 fit_model(
   type,
+  response = "y",
   data = NULL,
   lambda_prior_alpha = 15,
   lambda_prior_beta = 1,
