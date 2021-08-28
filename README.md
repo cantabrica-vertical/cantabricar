@@ -19,7 +19,14 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 if !("devtools" %in% installed.packages()) install.packages("devtools")
 if !("keyring" %in% installed.packages()) install.packages("keyring")
 keyring::key_set_with_value("cantabrica", "cantabrica-admin", "XXXXXXXX") # sustituir XXXXXX con la contraseña de Azure
-devtools::install_github("cantabricagr/cantabricar")
+devtools::install_github("cantabricagr/cantabricar") # versión principal
+```
+
+En caso de querer descargar la versión de prueba, sustituir el último
+comando por:
+
+``` r
+devtools::install_github("cantabricagr/cantabricar", ref = "test") # versión principal
 ```
 
 -   Ejecutar la app con el siguiente comando en la consola de R:

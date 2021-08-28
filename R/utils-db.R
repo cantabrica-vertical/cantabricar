@@ -150,13 +150,14 @@ get_bandejas_vacias <- function(
 
     suppressMessages({
         x <- expand_grid(
+            estanterias = 1:instalaciones$max_estanterias,
             balda = 1:instalaciones$max_baldas,
             bandeja = 1:instalaciones$max_bandejas
         ) %>%
             left_join(filter(bandejas, !(id %in% d$cosechadas$id))) %>%
             filter(is.na(id)) %>%
-            arrange(balda, bandeja) %>%
-            unite("bandeja", c(balda, bandeja), sep = "-") %>%
+            arrange(estanteria, balda, bandeja) %>%
+            unite("bandeja", c(estanteria, balda, bandeja), sep = "-") %>%
             pull(bandeja)
     })
     return(x)
@@ -196,3 +197,98 @@ delete_data_row <- function(con = NULL, table, id){
     return(dbReadTable(con, table))
 }
 
+#' Add estanteria
+#' @export add_estanteria
+#' @importFrom DBI dbExecute
+add_estanteria <- function(con, instalaciones){
+    if (is.null(con)) con <- get_connection()
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    date <- as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))
+    df <- data.frame(
+        max_estanterias = instalaciones$max_estanterias+1,
+        max_baldas = instalaciones$max_baldas,
+        max_bandejas = instalaciones$max_bandejas,
+        fecha_instalaciones = date
+    )
+    dbWriteTable(con, "instalaciones", df, append = TRUE)
+}
+
+#' Remove estanteria
+#' @export remove_estanteria
+#' @importFrom DBI dbExecute
+remove_estanteria <- function(con, instalaciones){
+    if (is.null(con)) con <- get_connection()
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    date <- as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))
+    df <- data.frame(
+        max_estanterias = instalaciones$max_estanterias-1,
+        max_baldas = instalaciones$max_baldas,
+        max_bandejas = instalaciones$max_bandejas,
+        fecha_instalaciones = date
+    )
+    dbWriteTable(con, "instalaciones", df, append = TRUE)
+}
+
+#' Add balda
+#' @export add_balda
+#' @importFrom DBI dbExecute
+add_balda <- function(con, instalaciones){
+    if (is.null(con)) con <- get_connection()
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    date <- as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))
+    df <- data.frame(
+        max_estanterias = instalaciones$max_estanterias,
+        max_baldas = instalaciones$max_baldas+1,
+        max_bandejas = instalaciones$max_bandejas,
+        fecha_instalaciones = date
+    )
+    dbWriteTable(con, "instalaciones", df, append = TRUE)
+}
+
+#' Remove balda
+#' @export remove_balda
+#' @importFrom DBI dbExecute
+remove_balda <- function(con, instalaciones){
+    if (is.null(con)) con <- get_connection()
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    date <- as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))
+    df <- data.frame(
+        max_estanterias = instalaciones$max_estanterias,
+        max_baldas = instalaciones$max_baldas-1,
+        max_bandejas = instalaciones$max_bandejas,
+        fecha_instalaciones = date
+    )
+    dbWriteTable(con, "instalaciones", df, append = TRUE)
+}
+
+#' Add bandeja
+#' @export add_bandeja
+#' @importFrom DBI dbExecute
+add_bandeja <- function(con, instalaciones){
+    if (is.null(con)) con <- get_connection()
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    date <- as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))
+    df <- data.frame(
+        max_estanterias = instalaciones$max_estanterias,
+        max_baldas = instalaciones$max_baldas,
+        max_bandejas = instalaciones$max_bandejas+1,
+        fecha_instalaciones = date
+    )
+    dbWriteTable(con, "instalaciones", df, append = TRUE)
+}
+
+#' Add bandeja
+#' @export remove_bandeja
+#' @importFrom DBI dbExecute
+remove_bandeja <- function(con, instalaciones){
+    if (is.null(con)) con <- get_connection()
+    if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
+    date <- as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))
+    df <- data.frame(
+        max_estanterias = instalaciones$max_estanterias,
+        max_baldas = instalaciones$max_baldas,
+        max_bandejas = instalaciones$max_bandejas-1,
+        fecha_instalaciones = date
+    )
+    dbWriteTable(con, "instalaciones", df, append = TRUE)
+}

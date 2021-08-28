@@ -25,21 +25,28 @@ tab_dashboard <- function() {
                 column(
                     width = 4,
                     box(
-                        title = "Gestionar bandejas",
+                        title = "Gestionar instalaciones",
                         column(
                             width = 6,
+                            fluidRow(textOutput("dashboard_estanterias")),
+                            br(), br(),
                             fluidRow(textOutput("dashboard_baldas")),
                             br(), br(),
                             fluidRow(textOutput("dashboard_bandejas")),
+
                         ),
                         column(
                             width = 3,
+                            fluidRow(actionButton("bandejas_remove_estanteria", "-")),
+                            br(),
                             fluidRow(actionButton("bandejas_remove_balda", "-")),
                             br(),
                             fluidRow(actionButton("bandejas_remove_bandeja", "-"))
                         ),
                         column(
                             width = 3,
+                            fluidRow(actionButton("bandejas_add_estanteria", "+")),
+                            br(),
                             fluidRow(actionButton("bandejas_add_balda", "+")),
                             br(),
                             fluidRow(actionButton("bandejas_add_bandeja", "+"))

@@ -73,9 +73,7 @@ shinyServer(
     ## dashboard ----
     output$dashboard_bandejas_plot <- renderPlotly({
       x <- get_data_summary(con) %>%
-        filter(
-          !(id %in% d$cosechadas$id)
-        ) %>%
+        filter(!(id %in% d$cosechadas$id)) %>%
         mutate(
           status = case_when(
             !is.na(t_germinacion) ~ "Germinada",
@@ -83,17 +81,27 @@ shinyServer(
             TRUE ~ "Sembrada"
           )
         ) %>%
-        right_join(expand_grid(balda = 1:instalaciones$max_baldas, bandeja = 1:instalaciones$max_bandejas), by = c("bandeja", "balda")) %>%
+        right_join(
+          expand_grid(
+            estanteria = 1:instalaciones$max_estanterias,
+            balda = 1:instalaciones$max_baldas,
+            bandeja = 1:instalaciones$max_bandejas
+          ),
+          by = c("estanteria", "bandeja", "balda")
+        ) %>%
         replace_na(replace = list(status = "Vacia")) %>%
-        mutate(texto = ifelse(
-          status=="Vacia", "Bandeja vacia", paste0(
-            "Bandeja ", balda, "-", bandeja, "\n",
-            especie, " ", variedad, " (ID: ", id, ") \n",
-            "Siembra: ", as_date(fecha_siembra), "\n",
-            "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fit_cosecha$summary()$median[2]))
-          ))
+        mutate(
+          estanteria = paste0("Estanteria ", estanteria),
+          texto = ifelse(
+            status=="Vacia", "Bandeja vacia", paste0(
+              "Bandeja ", balda, "-", bandeja, "\n",
+              especie, " ", variedad, " (ID: ", id, ") \n",
+              "Siembra: ", as_date(fecha_siembra), "\n",
+              "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fit_cosecha$summary()$median[2]))
+            ))
         ) %>%
         ggplot(aes(bandeja, balda, fill = status, text = texto)) +
+        facet_wrap(~estanteria, nrow = 2) +
         geom_tile(colour = "white", size = 1) +
         geom_text(aes(label = id)) +
         labs(x = "Bandejas", y = "Baldas", fill = "Fase") +
@@ -114,7 +122,11 @@ shinyServer(
       y <- ggplotly(x, tooltip = "text") %>%
         style(hoverlabel = label) %>%
         partial_bundle()
-      return(y)
+      return(x)
+    })
+
+    output$dashboard_estanterias <- renderText({
+      paste0("N\u00ba estanterias: ", instalaciones$max_estanterias)
     })
 
     output$dashboard_baldas <- renderText({
@@ -125,11 +137,22 @@ shinyServer(
       paste0("N\u00ba bandejas: ", instalaciones$max_bandejas)
     })
 
-    observeEvent(input$bandejas_remove_balda, {
-      message("Removing balda...")
+    observeEvent(input$bandejas_add_estanteria, {
+      message("Adding estanteria...")
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas-1, max_bandejas = instalaciones$max_bandejas, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
+      add_estanteria(con, instalaciones)
+      instalaciones <<- get_instalaciones(con)
+      bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
+      remove_modal_spinner()
+      session$reload()
+    })
+
+    observeEvent(input$bandejas_remove_estanteria, {
+      message("Removing estanteria...")
+      Sys.sleep(1.5)
+      show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
+      remove_estanteria(con, instalaciones)
       instalaciones <<- get_instalaciones(con)
       bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
@@ -140,18 +163,18 @@ shinyServer(
       message("Adding balda...")
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas+1, max_bandejas = instalaciones$max_bandejas, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
+      add_balda(con, instalaciones)
       instalaciones <<- get_instalaciones(con)
       bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
       session$reload()
     })
 
-    observeEvent(input$bandejas_remove_bandeja, {
-      message("Removing bandeja...")
+    observeEvent(input$bandejas_remove_balda, {
+      message("Removing balda...")
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas, max_bandejas = instalaciones$max_bandejas-1, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
+      remove_balda(con, instalaciones)
       instalaciones <<- get_instalaciones(con)
       bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
@@ -162,12 +185,24 @@ shinyServer(
       message("Adding balda...")
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas, max_bandejas = instalaciones$max_bandejas+1, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
+      add_bandeja(con, instalaciones)
       instalaciones <<- get_instalaciones(con)
       bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
       session$reload()
     })
+
+    observeEvent(input$bandejas_remove_bandeja, {
+      message("Removing bandeja...")
+      Sys.sleep(1.5)
+      show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
+      remove_bandeja(con, instalaciones)
+      instalaciones <<- get_instalaciones(con)
+      bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
+      remove_modal_spinner()
+      session$reload()
+    })
+
 
 
     output$dashboard_fechas_plot <- renderPlotly({
