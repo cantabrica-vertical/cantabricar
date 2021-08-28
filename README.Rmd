@@ -33,6 +33,13 @@ keyring::key_set_with_value("cantabrica", "cantabrica-admin", "XXXXXXXX") # sust
 devtools::install_github("cantabricagr/cantabricar")
 ```
 
+En caso de querer descargar la versión de prueba, sustituir el último comando por:
+
+```r
+devtools::install_github("cantabricagr/cantabricar", ref = "test") # versión principal
+```
+
+
 * Ejecutar la app con el siguiente comando en la consola de R:
 
 ``` r
