@@ -10,17 +10,22 @@
 #' @param ... Arguments to be passed to the \code{$sample} operator
 fit_model <- function(
     type,
+    response = "y",
     data = NULL,
     lambda_prior_alpha = 15,
     lambda_prior_beta = 1,
     save = NULL,
     ...
 ){
-    if (is.null(data)) data <- data.frame(y = double())
+    if (is.null(data)  || NROW(data)<1){
+        data <- data.frame(y = double())
+        colnames(data) <- response
+    }
+    if (!(type %in% c("germinacion", "hojas", "cosecha"))) stop("type must be one of germinacion, hojas, and cosecha")
     if (type=="germinacion") stan_code <- system.file("stan/germinacion.stan", package = "cantabricar")
     if (type=="hojas") stan_code <- system.file("stan/hojas.stan", package = "cantabricar")
     if (type=="cosecha") stan_code <- system.file("stan/cosecha.stan", package = "cantabricar")
-    data_stan <- list(N = nrow(data), y = data$y, lambda_prior_alpha = lambda_prior_alpha, lambda_prior_beta = lambda_prior_beta)
+    data_stan <- list(N = nrow(data), y = data[, response], lambda_prior_alpha = lambda_prior_alpha, lambda_prior_beta = lambda_prior_beta)
     mod <- cmdstan_model(stan_code)
     fit <- mod$sample(data = data_stan, ...)
     if (!is.null(save)) fit$save_object(file = save)
@@ -40,7 +45,12 @@ get_diagnostics <- function(fit){
 #' @import cmdstanr
 #' @param fit CmdStanFit object (output from \code{fit_germination})
 get_loo <- function(fit){
-    fit$loo()
+    if ("log_lik[1]" %in% fit$summary()$variable){
+        x <- fit$loo()
+        return(x)
+    } else {
+        return(NULL)
+    }
 }
 
 #' Get posterior draws
@@ -77,14 +87,16 @@ get_post_preds <- function(
     fit,
     n = 20
 ){
-    library(cmdstanr)
-    library(rjson)
-    data <- fromJSON(paste(readLines(fit$data_file()), collapse=""))
-    draws <- fit$draws()
-    preds <- draws[,,dimnames(draws)$variable[grepl("y_rep", dimnames(draws)$variable)]] %>%
-        as_draws_matrix()
-    preds$
-        ppc_dens_overlay(y = data$y, yrep = preds[1:n, 0:data$N])
+    if ("y_rep[1]" %in% fit$summary()$variable){
+        data <- fromJSON(paste(readLines(fit$data_file()), collapse=""))
+        draws <- fit$draws()
+        preds <- draws[,,dimnames(draws)$variable[grepl("y_rep", dimnames(draws)$variable)]] %>%
+            as_draws_matrix()
+        x <- ppc_dens_overlay(y = data$y, yrep = preds[1:n, 0:data$N])
+        return(x)
+    } else {
+        return(NULL)
+    }
 }
 
 #' Get prior predictions
@@ -99,13 +111,16 @@ get_prior_preds <- function(
     fit,
     n = 20
 ){
-    library(cmdstanr)
-    library(rjson)
-    data <- fromJSON(paste(readLines(fit$data_file()), collapse=""))
-    draws <- fit$draws()
-    preds <- draws[,,dimnames(draws)$variable[grepl("y_sim", dimnames(draws)$variable)]] %>%
-        as_draws_matrix()
-    ppc_dens_overlay(y = data$y, yrep = preds[1:n, 0:data$N])
+    if ("y_sim[1]" %in% fit$summary()$variable){
+        data <- fromJSON(paste(readLines(fit$data_file()), collapse=""))
+        draws <- fit$draws()
+        preds <- draws[,,dimnames(draws)$variable[grepl("y_sim", dimnames(draws)$variable)]] %>%
+            as_draws_matrix()
+        x <- ppc_dens_overlay(y = data$y, yrep = preds[1:n, 0:data$N])
+        return(x)
+    } else {
+        return(NULL)
+    }
 }
 
 #' Plot MCMC posterior draws as a histogram

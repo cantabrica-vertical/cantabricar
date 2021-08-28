@@ -112,3 +112,5 @@ test_that("get_instalaciones returns a one-row data frame with the right column 
 test_that("get_bandejas_vacias returns a character vector with the empty trays", {
     expect_type(bandejas_vacias, "character")
 })
+
+
