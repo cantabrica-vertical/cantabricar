@@ -131,7 +131,7 @@ shinyServer(
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas-1, max_bandejas = instalaciones$max_bandejas, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
       instalaciones <<- get_instalaciones(con)
-      bandejas_vacias <<- get_bandejas_vacias(con, instalaciones, bandejas)
+      bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
       session$reload()
     })
@@ -142,7 +142,7 @@ shinyServer(
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas+1, max_bandejas = instalaciones$max_bandejas, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
       instalaciones <<- get_instalaciones(con)
-      bandejas_vacias <<- get_bandejas_vacias(con, instalaciones, bandejas)
+      bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
       session$reload()
     })
@@ -153,7 +153,7 @@ shinyServer(
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas, max_bandejas = instalaciones$max_bandejas-1, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
       instalaciones <<- get_instalaciones(con)
-      bandejas_vacias <<- get_bandejas_vacias(con, instalaciones, bandejas)
+      bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
       session$reload()
     })
@@ -164,7 +164,7 @@ shinyServer(
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       dbWriteTable(con, "instalaciones", data.frame(max_baldas = instalaciones$max_baldas, max_bandejas = instalaciones$max_bandejas+1, fecha_instalaciones = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D"))), append = TRUE)
       instalaciones <<- get_instalaciones(con)
-      bandejas_vacias <<- get_bandejas_vacias(con, instalaciones, bandejas)
+      bandejas_vacias <<- get_bandejas_vacias(con, d, instalaciones, bandejas)
       remove_modal_spinner()
       session$reload()
     })
@@ -203,7 +203,7 @@ shinyServer(
         theme(
           legend.position = "none"
         )
-      ggplotly(x, tooltip = "text")
+      return(x)
     })
 
 
