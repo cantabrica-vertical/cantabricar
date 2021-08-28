@@ -143,6 +143,7 @@ get_bandejas_vacias <- function(
     instalaciones = NULL,
     bandejas = NULL
 ){
+    if (is.null(con)) con <- get_connection()
     if (is.null(data)) data <- get_data(con)
     if (is.null(instalaciones)) instalaciones <- get_instalaciones(con)
     if (is.null(bandejas)) bandejas <- get_bandejas(con)
@@ -152,7 +153,7 @@ get_bandejas_vacias <- function(
             balda = 1:instalaciones$max_baldas,
             bandeja = 1:instalaciones$max_bandejas
         ) %>%
-            left_join(filter(bandejas, !(id %in% d$cosechadas$id)))
+            left_join(filter(bandejas, !(id %in% d$cosechadas$id))) %>%
             filter(is.na(id)) %>%
             arrange(balda, bandeja) %>%
             unite("bandeja", c(balda, bandeja), sep = "-") %>%
@@ -195,12 +196,3 @@ delete_data_row <- function(con = NULL, table, id){
     return(dbReadTable(con, table))
 }
 
-#' Create ID for new plant
-#' @export create_id
-#' @importFrom stringr str_extract
-#' @importFrom stringr str_remove_all
-create_id <- function(x, y){
-    number <- y %>% str_extract("\\d.*") %>% as.numeric() %>% max(na.rm = TRUE)
-    x <- x %>% str_remove_all(" |-") %>%  paste0(., "_", number+1) %>% tolower()
-    return(x)
-}
