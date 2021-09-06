@@ -25,28 +25,11 @@ bandejas <- get_bandejas(con)
 instalaciones <- get_instalaciones(con)
 bandejas_vacias <- get_bandejas_vacias(con, d, instalaciones, bandejas)
 
-
-rds_path <- system.file("RDS", "fit_germinacion.rds", package = "cantabricar", mustWork = TRUE)
+rds_path <- system.file("RDS", "fit_germinacion.rds", package = "cantabricar")
 if (rds_path=="") {
-    fit_germinacion <- fit_model(
-        type = "germinacion",
-        save = system.file("RDS", "fit_germinacion.rds", package = "cantabricar", mustWork = TRUE),
-        lambda_prior_alpha = 15,
-        lambda_prior_beta = 1
-    )
-    fit_hojas <- fit_model(
-        type = "hojas",
-        save = system.file("RDS", "fit_hojas.rds", package = "cantabricar", mustWork = TRUE),
-        lambda_prior_alpha = 15,
-        lambda_prior_beta = 1
-
-    )
-    fit_cosecha <- fit_model(
-        type = "cosecha",
-        save = system.file("RDS", "fit_cosecha.rds", package = "cantabricar", mustWork = TRUE),
-        lambda_prior_alpha = 15,
-        lambda_prior_beta = 1
-    )
+    fit_germinacion <- fit_model(type = "germinacion", y = "t_germinacion", data = d_all)
+    fit_hojas <- fit_model(type = "hojas", y = "t_hojas", data = d_all)
+    fit_cosecha <- fit_model(type = "cosecha", y = "t_cosecha", data = d_all)
 } else {
     fit_germinacion <- readRDS(system.file("RDS", "fit_germinacion.rds", package = "cantabricar", mustWork = TRUE))
     fit_hojas <- readRDS(system.file("RDS", "fit_hojas.rds", package = "cantabricar", mustWork = TRUE))

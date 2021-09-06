@@ -97,7 +97,7 @@ shinyServer(
               "Bandeja ", balda, "-", bandeja, "\n",
               especie, " ", variedad, " (ID: ", id, ") \n",
               "Siembra: ", as_date(fecha_siembra), "\n",
-              "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fit_cosecha$summary()$median[2]))
+              "Cosecha estimada: ", as_date(fecha_siembra+ceiling(fixef(fit_cosecha)[1]))
             ))
         ) %>%
         ggplot(aes(bandeja, balda, fill = status, text = texto)) +
@@ -218,6 +218,7 @@ shinyServer(
         geom_line(aes(group = especie), size = 1) +
         labs(x = "Fecha de siembra", y = "# siembras", colour = "Especie") +
         theme_custom() +
+        scale_y_continuous(labels = as.integer) +
         theme(
           legend.position = "top",
           legend.title = element_blank(),
@@ -248,7 +249,7 @@ shinyServer(
         select(id, especie, variedad, fecha_siembra) %>%
         mutate(
           start = fecha_siembra,
-          end = fecha_siembra + ceiling(fit_cosecha$summary()$median[2]),
+          end = fecha_siembra + ceiling(fixef(fit_cosecha)[1]),
           title = paste0("ID: ", id, " (", especie, " ", variedad, ")"),
           body = paste("Tiempo de siembra-cosecha estimado para ID: ", id, "."),
           recurrenceRule = NA_character_,
@@ -335,27 +336,18 @@ shinyServer(
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Germinaciones (1/3)")
       fit_germinacion <<- fit_model(
-        data = d_all %>% drop_na(t_germinacion) %>% select(id, t_germinacion) %>% mutate(t_germinacion = as.integer(t_germinacion)) %>% rename(y = t_germinacion),
-        type = "germinacion",
-        save = system.file("RDS", "fit_germinacion.rds", package = "cantabricar"),
-        lambda_prior_alpha = ceiling(fit_germinacion$summary()$mean[2]),
-        lambda_prior_beta = 1
+        data = d_all %>% drop_na(t_germinacion) %>% select(id, especie, t_germinacion) %>% mutate(t_germinacion = as.integer(t_germinacion)) %>% rename(y = t_germinacion),
+        type = "germinacion"
       )
       show_modal_spinner(spin = "semipolar", color = "Crimson", text = "Hojas verdaderas (2/3)")
       fit_hojas <<- fit_model(
-        data = d_all %>% drop_na(t_hojas) %>% select(id, t_hojas) %>% mutate(t_hojas = as.integer(t_hojas)) %>% rename(y = t_hojas),
-        type = "hojas",
-        save = system.file("RDS", "fit_hojas.rds", package = "cantabricar"),
-        lambda_prior_alpha = ceiling(fit_hojas$summary()$mean[2]),
-        lambda_prior_beta = 1
+        data = d_all %>% drop_na(t_hojas) %>% select(id, especie, t_hojas) %>% mutate(t_hojas = as.integer(t_hojas)) %>% rename(y = t_hojas),
+        type = "hojas"
       )
       show_modal_spinner(spin = "semipolar", color = "DarkOrange", text = "Cosechas (3/3)")
       fit_cosecha <<- fit_model(
-        data = d_all %>% drop_na(t_cosecha) %>% select(id, t_cosecha) %>% mutate(t_cosecha = as.integer(t_cosecha)) %>% rename(y = t_cosecha),
-        type = "cosecha",
-        save = system.file("RDS", "fit_cosecha.rds", package = "cantabricar"),
-        lambda_prior_alpha = ceiling(fit_cosecha$summary()$mean[2]),
-        lambda_prior_beta = 1
+        data = d_all %>% drop_na(t_cosecha) %>% select(id, especie, t_cosecha) %>% mutate(t_cosecha = as.integer(t_cosecha)) %>% rename(y = t_cosecha),
+        type = "cosecha"
       )
       remove_modal_spinner()
       session$reload()
@@ -363,14 +355,11 @@ shinyServer(
 
     ## germinacion
     output$estimaciones_germinacion_table <- renderDataTable({
-      x <- fit_germinacion$summary()
+      x <- brms::ranef(fit_germinacion)$especie[,,"Intercept"]+fixef(fit_germinacion)[1]
       datatable(
         x,
         rownames = FALSE
-      ) %>%
-        formatRound(columns = c("mean", "median", "sd", "mad", "q5", "q95", "rhat"), digits = 2) %>%
-        formatRound(columns = c("ess_bulk", "ess_tail"), digits = 0)
-
+      )
     })
 
     # estimaciones germinacion
@@ -381,14 +370,11 @@ shinyServer(
 
     # estimaciones hojas
     output$estimaciones_hojas_table <- renderDataTable({
-      x <- fit_hojas$summary()
+      x <- brms::ranef(fit_hojas)$especie[,,"Intercept"]+fixef(fit_hojas)[1]
       datatable(
         x,
         rownames = FALSE
-      ) %>%
-        formatRound(columns = c("mean", "median", "sd", "mad", "q5", "q95", "rhat"), digits = 2) %>%
-        formatRound(columns = c("ess_bulk", "ess_tail"), digits = 0)
-
+      )
     })
 
     output$estimaciones_hojas_plot <- renderPlot({
@@ -398,14 +384,11 @@ shinyServer(
 
     # estimaciones cosecha
     output$estimaciones_cosecha_table <- renderDataTable({
-      x <- fit_cosecha$summary()
+      x <- brms::ranef(fit_cosecha)$especie[,,"Intercept"]+fixef(fit_cosecha)[1]
       datatable(
         x,
         rownames = FALSE
-      ) %>%
-        formatRound(columns = c("mean", "median", "sd", "mad", "q5", "q95", "rhat"), digits = 2) %>%
-        formatRound(columns = c("ess_bulk", "ess_tail"), digits = 0)
-
+      )
     })
 
     output$estimaciones_cosecha_plot <- renderPlot({

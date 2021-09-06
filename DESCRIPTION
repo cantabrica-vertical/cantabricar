@@ -40,7 +40,10 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    toastui
+    toastui,
+    brms,
+    parallel,
+    tidybayes
 Suggests: 
     shinytest,
     testthat (>= 3.0.0)

@@ -7,7 +7,7 @@
 get_draws(fit)
 }
 \arguments{
-\item{fit}{CmdStanFit object (output from \code{fit_germination})}
+\item{fit}{brmsfit object (output from \code{fit_germination})}
 }
 \description{
 Get posterior draws

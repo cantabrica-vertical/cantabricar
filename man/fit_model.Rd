@@ -4,26 +4,20 @@
 \alias{fit_model}
 \title{Fit germinacion model}
 \usage{
-fit_model(
-  type,
-  response = "y",
-  data = NULL,
-  lambda_prior_alpha = 15,
-  lambda_prior_beta = 1,
-  save = NULL,
-  ...
-)
+fit_model(type = NULL, y = "y", especie = "especie", data)
 }
 \arguments{
-\item{type}{Type of data to fit. One of "germinacion", "hojas", or "cosecha".}
+\item{type}{Type of data to fit. One of "germinacion", "hojas", or "cosecha"}
 
-\item{data}{Data frame with a row for each plant and at least one column with the germination days}
+\item{y}{Response variable name in data}
 
-\item{save}{Path where the CmdStanFit object should be saved (as a RDS file)}
+\item{especie}{Especie variable name in data}
 
-\item{...}{Arguments to be passed to the \code{$sample} operator}
-
-\item{lambda_prior}{Prior distribution of the lambda parameter in the Poisson distribution used to model germination days}
+\item{data}{Data frame with a row for each plant and at least one
+column with the germination days}
+}
+\value{
+A brmsfit object.
 }
 \description{
 Fit germinacion model

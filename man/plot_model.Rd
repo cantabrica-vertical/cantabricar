@@ -7,7 +7,9 @@
 plot_model(fit)
 }
 \arguments{
-\item{draws}{Posterior draws from a CmdStanFit object (output from \code{draws_germination})}
+\item{draws}{ggplot with the 95\% credible interval of the day count for each species,
+scaled to Intercept
+(output from \code{draws_germination})}
 }
 \description{
 Plot MCMC posterior draws as a histogram

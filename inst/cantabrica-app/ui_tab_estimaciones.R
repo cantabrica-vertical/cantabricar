@@ -15,10 +15,7 @@ tab_estimaciones <- function() {
                         box(
                             title = "Modelo", width = 3,
                             file.info(system.file("RDS", "fit_germinacion.rds", package = "cantabricar", mustWork = TRUE))$mtime,
-                            br(),
-                            paste0("Stan ", fit_germinacion$metadata()$stan_version_major, ".", fit_germinacion$metadata()$stan_version_minor, ".", fit_germinacion$metadata()$stan_version_patch),
-                            br(),
-                            paste0("Tiempo en ajustar: ", fit_germinacion$metadata()$time$total, " s"),
+                            br()
                         ),
                         img(src = "stan.png", width = 100, height = 100, alt = "Logo")
                     ),
@@ -39,10 +36,7 @@ tab_estimaciones <- function() {
                         box(
                             title = "Modelo", width = 3,
                             file.info(system.file("RDS", "fit_hojas.rds", package = "cantabricar", mustWork = TRUE))$mtime,
-                            br(),
-                            paste0("Stan ", fit_hojas$metadata()$stan_version_major, ".", fit_hojas$metadata()$stan_version_minor, ".", fit_hojas$metadata()$stan_version_patch),
-                            br(),
-                            paste0("Tiempo en ajustar: ", fit_hojas$metadata()$time$total, " s"),
+                            br()
                         ),
                         img(src = "stan.png", width = 100, height = 100, alt = "Logo")
                     ),
@@ -63,10 +57,7 @@ tab_estimaciones <- function() {
                         box(
                             title = "Modelo", width = 3,
                             file.info(system.file("RDS", "fit_cosecha.rds", package = "cantabricar", mustWork = TRUE))$mtime,
-                            br(),
-                            paste0("Stan ", fit_cosecha$metadata()$stan_version_major, ".", fit_cosecha$metadata()$stan_version_minor, ".", fit_cosecha$metadata()$stan_version_patch),
-                            br(),
-                            paste0("Tiempo en ajustar: ", fit_cosecha$metadata()$time$total, " s"),
+                            br()
                         ),
                         img(src = "stan.png", width = 100, height = 100, alt = "Logo")
                     ),
