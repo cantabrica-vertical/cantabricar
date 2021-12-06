@@ -10,7 +10,7 @@ tab_cosecha <- function() {
                     title = "Nueva cosecha",
                     status = "success",
                     width = 4,
-                    selectInput(inputId = "database_cosecha_id", label = "ID", choices = sort(pull(filter(d$sembradas, !(id %in% d$cosechadas$id)), id)), selected = NULL),
+                    selectInput(inputId = "database_cosecha_id", label = "ID", choices = sort(pull(filter(d$siembras, !(id %in% d$cosechas$id)), id)), selected = NULL),
                     dateInput( inputId = "database_cosecha_date", label = "Fecha", value = today(), language = "es",max = today()),
                     br(),
                     textInput(inputId = "database_cosecha_comentarios", label = "Comentarios", value = ""),
@@ -20,7 +20,7 @@ tab_cosecha <- function() {
                 box(
                     title = "Borrar cosecha",
                     status = "danger",
-                    selectInput(inputId = "database_eliminar_cosecha_id", label = "ID", choices = sort(d$cosechadas$id), selected = NULL),
+                    selectInput(inputId = "database_eliminar_cosecha_id", label = "ID", choices = sort(d$cosechas$id), selected = NULL),
                     br(),
                     actionButton("database_cosecha_eliminar_button", "Eliminar")
                 )

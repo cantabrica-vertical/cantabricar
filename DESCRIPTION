@@ -43,7 +43,10 @@ Imports:
     toastui,
     brms,
     parallel,
-    tidybayes
+    tidybayes,
+    RSQLite,
+    readr,
+    glue
 Suggests: 
     shinytest,
     testthat (>= 3.0.0)

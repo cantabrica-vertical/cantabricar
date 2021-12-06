@@ -10,7 +10,7 @@ tab_germinacion <- function() {
                     title = "Nueva germinaci\u00f3n",
                     status = "success",
                     width = 4,
-                    selectInput(inputId = "database_germinacion_id", label = "ID", choices = pull(filter(d$sembradas, !(id %in% d$cosechadas$id), !(id %in% d$germinadas$id)), id) %>% sort(), selected = NULL, multiple = FALSE),
+                    selectInput(inputId = "database_germinacion_id", label = "ID", choices = pull(filter(d$siembras, !(id %in% d$cosechas$id), !(id %in% d$germinaciones$id)), id) %>% sort(), selected = NULL, multiple = FALSE),
                     dateInput(inputId = "database_germinacion_date", label = "Fecha", value = today(), language = "es", max = today()),
                     textInput(inputId = "database_germinacion_comentarios", label = "Comentarios", value = ""),
                     br(),
@@ -19,7 +19,7 @@ tab_germinacion <- function() {
                 box(
                     title = "Borrar germinaci\u00f3n",
                     status = "danger",
-                    selectInput(inputId = "database_eliminar_germinacion_id", label = "ID", choices = sort(d$germinadas$id), selected = NULL
+                    selectInput(inputId = "database_eliminar_germinacion_id", label = "ID", choices = sort(d$germinaciones$id), selected = NULL
 ),
                     br(),
                     actionButton("database_germinacion_eliminar_button", "Eliminar")

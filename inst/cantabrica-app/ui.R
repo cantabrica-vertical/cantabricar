@@ -16,7 +16,6 @@ dashboardPage(
       tab_estimaciones(),
       tab_siembra(),
       tab_germinacion(),
-      tab_trasplante(),
       tab_hojas(),
       tab_cosecha()
     ),

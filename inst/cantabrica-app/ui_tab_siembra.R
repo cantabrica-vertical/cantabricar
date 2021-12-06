@@ -16,7 +16,6 @@ tab_siembra <- function() {
                         selectInput(inputId = "database_siembra_especie", label = "Especie", choices = values$especie, selected = "Albahaca", multiple = FALSE),
                         selectInput(inputId = "database_siembra_variedad", label = "Variedad", choices = values$variedad, selected = NULL, multiple = FALSE),
                         selectInput(inputId = "database_siembra_planta_tipo", label = "Tipo de planta", choices = values$planta_tipo, selected = NULL, multiple = FALSE),
-                        selectInput(inputId = "database_siembra_bandeja", label = "Bandeja", choices = unique(bandejas_vacias), multiple = FALSE)
                     ),
                     column(
                         width = 6,

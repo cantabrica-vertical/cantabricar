@@ -92,27 +92,4 @@ test_that("get_data_summary returns a data frame with the right classes", {
     expect_true(all(class(d_all$bandeja)=="integer"))
 })
 
-test_that("get_bandejas returns a data frame with the right column names and classes", {
-    expect_true(class(bandejas)=="data.frame")
-    expect_named(bandejas, c("id", "balda", "bandeja", "fecha_bandeja", "estanteria"))
-    expect_type(bandejas$id, "integer")
-    expect_type(bandejas$balda, "integer")
-    expect_type(bandejas$estanteria, "integer")
-    expect_type(bandejas$bandeja, "integer")
-    expect_true(all(class(bandejas$fecha_bandeja) %in% c("POSIXct", "POSIXt")))
-})
-
-test_that("get_instalaciones returns a one-row data frame with the right column names and classes", {
-    expect_true(class(instalaciones)=="data.frame")
-    expect_named(instalaciones, c("max_bandejas", "max_baldas", "fecha_instalaciones", "max_estanterias"))
-    expect_type(instalaciones$max_baldas, "integer")
-    expect_type(instalaciones$max_bandejas, "integer")
-    expect_type(instalaciones$max_estanterias, "integer")
-    expect_true(all(class(instalaciones$fecha_instalaciones) %in% c("POSIXct", "POSIXt")))
-})
-
-test_that("get_bandejas_vacias returns a character vector with the empty trays", {
-    expect_type(bandejas_vacias, "character")
-})
-
 
