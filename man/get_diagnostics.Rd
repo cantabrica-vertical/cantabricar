@@ -2,13 +2,13 @@
 % Please edit documentation in R/models.R
 \name{get_diagnostics}
 \alias{get_diagnostics}
-\title{Diagnose germination model using CmdStan diagnostics}
+\title{Diagnose germination model}
 \usage{
 get_diagnostics(fit)
 }
 \arguments{
-\item{fit}{CmdStanFit object (output from \code{fit_germination})}
+\item{fit}{brmsfit object (output from \code{fit_germination})}
 }
 \description{
-Diagnose germination model using CmdStan diagnostics
+Diagnose germination model
 }

@@ -7,7 +7,8 @@
 plot_model(fit)
 }
 \arguments{
-\item{draws}{Posterior draws from a CmdStanFit object (output from \code{draws_germination})}
+\item{fit}{model fit, as returned by \code{fit_model}
+(output from \code{draws_germination})}
 }
 \description{
 Plot MCMC posterior draws as a histogram
