@@ -1,5 +1,6 @@
 # run this script when app is launched
 
+library(brms)
 library(cantabricar)
 library(DBI)
 library(DT)
@@ -13,11 +14,12 @@ library(shinydashboard)
 library(shinybusy)
 library(shinyjs)
 library(shinyWidgets)
+library(gt)
 library(tidyr)
+library(tibble)
 library(toastui)
 
 # import data ----
-db_create()
 con <- db_connect()
 db_create_tables(con)
 db_fill_values(con)

@@ -1,40 +1,15 @@
-#' Create database
-#' export db_Create
-db_create <- function(){
-    db_path <- system.file("cantabrica.db", package = "cantabricar")
-    cmd <- paste0("sqlite3 ", db_path)
-    if (db_path=="") system(cmd, intern = FALSE)
-}
-
-#' Connect to database
-#' @export db_set_password
-#' @importFrom keyring key_set
-db_set_password <- function()
-{
-    key_set("cantabrica", "cantabrica-admin")
-}
-
-#' Check database password
-#' @export db_check_password
-#' @importFrom keyring key_get
-#' @importFrom keyring key_set
-db_check_password <- function()
-{
-    x <- tryCatch(
-        {db_set_password()},
-        error = function(cond) db_set_password()
-    )
-    return(x)
-}
-
 #' Connect to SQL local host
 #' @export db_connect
 #' @importFrom DBI dbConnect
 #' @importFrom RSQLite SQLite
-#' @importFrom keyring key_get
-db_connect <- function()
+#' @param test should connection be established with the cantabrica-test.db?
+db_connect <- function(test = FALSE)
 {
-    db_path <- system.file("cantabrica.db", package = "cantabricar")
+    if (test){
+        db_path <- file.path(system.file("db", package = "cantabricar"), "cantabrica-test.db")
+    } else {
+        db_path <- file.path(system.file("db", package = "cantabricar"), "cantabrica.db")
+    }
     dbConnect(SQLite(), db_path)
 }
 
@@ -44,25 +19,42 @@ db_connect <- function()
 #' @importFrom glue glue_sql
 #' @importFrom DBI dbExecute
 #' @param con connection to database, as returned by \code{db_connect}
-db_create_tables <- function(con)
+#' @param tables character vector indicating the name of the tables to create ("plantas", "siembras", "germinaciones", "hojas", "cosechas", and "valores" by default)))
+#' @param fill logical values indicating whether values should be filled in using db_fill_tables
+db_create_tables <- function(
+    con,
+    tables = c("plantas", "siembras", "germinaciones", "hojas", "cosechas", "valores"),
+    fill = FALSE
+)
 {
-    suppressWarnings({
-        qrys <- list.files(
-            system.file("SQL", package = "cantabricar", mustWork = TRUE),
-            pattern = "create-", full.names = TRUE
-        ) %>%
-            lapply(
-                function(x)
-                {
-                    qry_lines <- paste0(readLines(x), collapse = "\n")
-                    qry <- glue_sql(qry_lines)
-                    return(qry)
-                }
-            )
+    if (!all(tables %in% dbListTables(con)))
+    {
+        suppressWarnings({
+            qrys <- list.files(
+                system.file("sql", package = "cantabricar", mustWork = TRUE),
+                pattern = "create-", full.names = TRUE
+            ) %>%
+                lapply(
+                    function(x)
+                    {
+                        qry_lines <- paste0(readLines(x), collapse = "\n")
+                        qry <- glue_sql(qry_lines)
+                        return(qry)
+                    }
+                )
 
-        lapply(qrys, function(x) dbExecute(con, x))
-    })
-    message("Tables created successfully")
+            lapply(qrys, function(x) dbExecute(con, x))
+        })
+        message("Tables created successfully")
+    } else {
+        message("All tables exist already")
+    }
+
+    if (fill)
+    {
+        db_fill_values(con)
+        db_fill_tables(con)
+    }
 }
 
 #' Add values if table 'valores' is empty
@@ -76,11 +68,11 @@ db_fill_values <- function(con)
     val_lgl <- (map_lgl(val, function(x) length(x) < 1))
     if (all(val_lgl))
     {
-        new_val <- read.csv(system.file("valores.csv", package = "cantabricar", mustWork = TRUE))
+        data("valores")
         db_add_values(
             con,
-            tipo = new_val$tipo,
-            valor = new_val$valor
+            tipo = valores$tipo,
+            valor = valores$valor
         )
     }
 }
@@ -88,13 +80,18 @@ db_fill_values <- function(con)
 #' Add values to all tables other than 'valores'
 #' @export db_fill_tables
 #' @param con connection to database, as returned by \code{db_connect}
-#' @param n number of observations to simulate
-db_fill_tables <- function(con, n = 50)
+#' @param n number of observations to simulate (defaults to 200)
+db_fill_tables <- function(con, n = 200)
 {
     values <- db_get_values(con)
 
+    tbl_ls <- dbListTables(con)
+    tables <- c("plantas", "siembras", "germinaciones", "hojas", "cosechas", "valores")
+
+    if (!all(tbl_ls %in% tables)) db_create_tables(con)
+
     # simulate dates, drawing date lags between steps from Poisson distribution (in seconds)
-    f_siembras <- sample(seq(as.POSIXct("2021/01/01 12:00:00"), as.POSIXct("2021/01/20 12:00:00"), by = "hour"), n, replace = TRUE)
+    f_siembras <- sample(seq(as.POSIXct("2021/01/01 12:00:00", tz = "CET"), as.POSIXct("2021/01/20 12:00:00", tz = "CET"), by = "hour"), n, replace = TRUE)
     f_germinaciones <- f_siembras + rpois(n, 10^6) + floor(rnorm(n, 0, 10^5))
     f_hojas <- f_germinaciones + rpois(n, 10^6) + floor(rnorm(n, 0, 10^5))
     f_cosechas <- f_hojas + rpois(n, 10^6) + floor(rnorm(n, 0, 10^5))
@@ -104,7 +101,7 @@ db_fill_tables <- function(con, n = 50)
     db_add_row(
         con, "plantas",
         data.frame(
-            id = 1:50,
+            id = 1:n,
             especie = sample(values$especie, size = n, replace = TRUE),
             variedad = sample(values$variedad, size = n, replace = TRUE),
             marca = sample(values$marca, size = n, replace = TRUE),
@@ -114,7 +111,7 @@ db_fill_tables <- function(con, n = 50)
     db_add_row(
         con, "siembras",
         data.frame(
-            id = 1:50,
+            id = 1:n,
             fecha_siembra = as.character(f_siembras),
             medio_siembra = "Bizcochito",
             luz = sample(c(TRUE, FALSE), size = n, replace = TRUE),
@@ -124,22 +121,30 @@ db_fill_tables <- function(con, n = 50)
             peso_semillas = rpois(n = n, lambda = 100),
             comentarios = comment_strings
         ))
+
     db_add_row(con, "germinaciones", data.frame(id = 1:n, fecha_germinacion = as.character(f_germinaciones), comentarios = comment_strings))
     db_add_row(con, "hojas", data.frame(id = 1:n, fecha_hojas = as.character(f_hojas), comentarios = comment_strings))
     db_add_row(con, "cosechas", data.frame(id = 1:n, fecha_cosecha = as.character(f_cosechas), comentarios = comment_strings))
+
+    message("Tables filled")
 }
 
 #' Empty all values in all tables but 'valores'
 #' @export db_empty_tables
 #' @importFrom DBI dbExecute
-#' @importFrom purrr map
 #' @param con connection to database, as returned by \code{db_connect}
 db_empty_tables <- function(con)
 {
+    tbl_ls <- dbListTables(con)[-which(dbListTables(con)=="valores")]
+    if (length(tbl_ls) > 0){
     invisible({
-        qrys <- paste0("DELETE FROM ", dbListTables(con)[-which(dbListTables(con)=="valores")])
-        map(qrys, ~dbExecute(con, .))
+        qrys <- paste0("DELETE FROM ", tbl_ls)
+        lapply(qrys, function(x) dbExecute(con, x))
     })
+    message("Tables emptied")
+    } else {
+        message("Tables do not exist")
+    }
 }
 
 #' Delete tables
@@ -149,21 +154,32 @@ db_empty_tables <- function(con)
 #' @param con connection to database, as returned by \code{db_connect}
 db_delete_tables <- function(con)
 {
-    invisible({
-        db_list <- dbListTables(con)
-        map(db_list, ~dbRemoveTable(con, .))
-    })
+    tbl_ls <- dbListTables(con)
+    if (length(tbl_ls) > 0)
+    {
+        invisible({
+            db_list <- dbListTables(con)
+            lapply(db_list, function(x) dbRemoveTable(con, x))
+        })
+        message("Tables deleted")
+    } else {
+        message("No tables to delete")
+    }
 }
 
 #' Retrieve all data
 #' @export db_get_data
 #' @importFrom DBI dbReadTable
-#' @importFrom purrr map
 #' @importFrom dplyr mutate_at
 #' @importFrom dplyr one_of
 #' @param con connection to database, as returned by \code{db_connect}
 db_get_data <- function(con)
 {
+    tbl_ls <- dbListTables(con)[-which(dbListTables(con)=="valores")]
+
+    if (length(tbl_ls) > 0)
+    {
+
     x <- list(
         plantas = dbReadTable(con, "plantas"),
         siembras = dbReadTable(con, "siembras"),
@@ -171,16 +187,28 @@ db_get_data <- function(con)
         hojas = dbReadTable(con, "hojas"),
         cosechas = dbReadTable(con, "cosechas")
     ) %>%
-        map(
+        lapply(
             function(x)
             {
-                mutate_at(
-                    x, vars(any_of(c("domo", "luz", "calor"))),
-                    function(y) as.logical(as.integer(y))
-                )
+                x %>%
+                    mutate_at(
+                        vars(any_of(c("domo", "luz", "calor", "peso"))),
+                        function(y) as.logical(as.integer(y))
+                    ) %>%
+                    mutate_at(
+                        vars(starts_with("fecha_")),
+                        function(y) as.POSIXct(y)
+                    ) %>%
+                    mutate_at(
+                        vars(any_of(c("peso_semillas"))),
+                        function(y) as.numeric(y)
+                    )
             }
         )
     return(x)
+    } else {
+        stop("Tables do not exist")
+    }
 }
 
 #' Summarise all data into a table
@@ -190,12 +218,13 @@ db_get_data <- function(con)
 #' @importFrom purrr map
 #' @importFrom purrr reduce
 #' @param con connection to database, as returned by \code{db_connect}
+#' @param data datasets, as returned by \code{db_get_data}
 db_summarise <- function(con, data = NULL)
 {
     if (is.null(data)) data <- db_get_data(con)
 
     suppressMessages({
-        x <- map(
+        x <- lapply(
             data, function(x)
             {
                 y <- x %>%

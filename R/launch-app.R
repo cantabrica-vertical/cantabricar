@@ -4,7 +4,7 @@
 #' @export launch_app
 #' @importFrom shiny shinyAppDir
 launch_app <- function(){
-    app_dir <- system.file("cantabrica-app", package = "cantabricar")
+    app_dir <- system.file("app", package = "cantabricar")
     if (!dir.exists(app_dir)) {
         stop("Could not find example directory. Try re-installing cantabricar.", call. = FALSE)
     }

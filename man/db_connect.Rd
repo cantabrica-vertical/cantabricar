@@ -4,7 +4,10 @@
 \alias{db_connect}
 \title{Connect to SQL local host}
 \usage{
-db_connect()
+db_connect(test = FALSE)
+}
+\arguments{
+\item{test}{should connection be established with the cantabrica-test.db?}
 }
 \description{
 Connect to SQL local host

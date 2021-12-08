@@ -41,9 +41,9 @@ fit_model <- function(
         cores = 1,
         inits = 0,
         iter = 1000,
-        file = file.path(system.file("RDS", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_fit-"), type, ".rds")),
+        file = file.path(system.file("rds", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_fit-"), type, ".rds")),
         file_refit = "always",
-        save_model = file.path(system.file("Stan", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_model-"), type, ".stan")),
+        save_model = file.path(system.file("stan", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_model-"), type, ".stan")),
         save_pars = save_pars("all")
     )
 
@@ -90,8 +90,7 @@ get_post_preds_checks <- function(
     fit,
     n = 20
 ) {
-    x <- pp_check(fit, ndraws = n) +
-        theme_custom()
+    x <- pp_check(fit, ndraws = n) + theme_custom()
     return(x)
 }
 
@@ -101,8 +100,7 @@ get_post_preds_checks <- function(
 #' @import ggplot2
 #' @importFrom brms fixef
 #' @importFrom tidybayes mean_qi
-#' @param draws ggplot with the 95% credible interval of the day count for each species,
-#' scaled to Intercept
+#' @param fit model fit, as returned by \code{fit_model}
 #' (output from \code{draws_germination})
 plot_model <- function(
     fit

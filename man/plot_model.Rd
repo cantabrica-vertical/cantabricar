@@ -7,8 +7,7 @@
 plot_model(fit)
 }
 \arguments{
-\item{draws}{ggplot with the 95\% credible interval of the day count for each species,
-scaled to Intercept
+\item{fit}{model fit, as returned by \code{fit_model}
 (output from \code{draws_germination})}
 }
 \description{

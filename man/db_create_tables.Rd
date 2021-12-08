@@ -4,10 +4,18 @@
 \alias{db_create_tables}
 \title{Create new tables if they don't exist}
 \usage{
-db_create_tables(con)
+db_create_tables(
+  con,
+  tables = c("plantas", "siembras", "germinaciones", "hojas", "cosechas", "valores"),
+  fill = FALSE
+)
 }
 \arguments{
 \item{con}{connection to database, as returned by \code{db_connect}}
+
+\item{tables}{character vector indicating the name of the tables to create ("plantas", "siembras", "germinaciones", "hojas", "cosechas", and "valores" by default)))}
+
+\item{fill}{logical values indicating whether values should be filled in using db_fill_tables}
 }
 \description{
 Create new tables if they don't exist

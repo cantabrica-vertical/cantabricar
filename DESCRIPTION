@@ -4,7 +4,7 @@ Version: 1.0.1
 Authors@R: 
     person(given = "Gonzalo",
            family = "Garcia-Castro",
-           role = c("aut", "cre", "man"),
+           role = c("aut", "cre"),
            email = "gonzaloggc95@gmail.com",
            comment = c(ORCID = "0000-0002-8553-4209"))
 Description: Esta app (y funciones asociadas) permite gestionar una base de datos SQL de forma interactiva supervisar cosechas, estimar tiempos de germinación y cosecha, y llevar un calendario de cosechas, entre otras cosas..
@@ -17,38 +17,30 @@ Imports:
     bayesplot,
     cmdstanr,
     DBI,
-    DT,
-    dbplyr,
     dplyr,
     ggplot2,
-    keyring,
     lifecycle,
     lubridate,
     magrittr,
-    odbc,
     plotly,
-    posterior,
     purrr,
-    rjson,
     scales,
     shiny,
     shinybusy,
     shinydashboard,
     shinyjs,
     shinyWidgets,
-    shinyWidgets,
     stringr,
     tibble,
     tidyr,
     toastui,
     brms,
-    parallel,
     tidybayes,
     RSQLite,
-    readr,
     glue,
     gt
 Suggests: 
+    covr,
     shinytest,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

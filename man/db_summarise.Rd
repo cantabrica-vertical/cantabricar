@@ -11,6 +11,8 @@ db_summarize(con, data = NULL)
 }
 \arguments{
 \item{con}{connection to database, as returned by \code{db_connect}}
+
+\item{data}{datasets, as returned by \code{db_get_data}}
 }
 \description{
 Summarise all data into a table

@@ -25,6 +25,7 @@ tab_siembra <- function() {
                         checkboxInput(inputId = "database_siembra_calor", label = "Calor", value = FALSE),
                         checkboxInput(inputId = "database_siembra_domo", label = "Domo", value = FALSE),
                         checkboxInput(inputId = "database_siembra_peso", label = "Peso", value = FALSE),
+                        checkboxInput(inputId = "database_siembra_luz", label = "Luz", value = FALSE),
                         textInput(inputId = "database_siembra_comentarios", label = "Comentarios", value = "")
                     )
                 ),

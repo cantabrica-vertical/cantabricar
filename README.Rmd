@@ -18,6 +18,9 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/cantabrica-vertical/cantabricar/workflows/R-CMD-check/badge.svg)](https://github.com/cantabrica-vertical/cantabricar/actions)
+[![CircleCI build status](https://circleci.com/gh/cantabrica-vertical/cantabricar.svg?style=svg)](https://circleci.com/gh/cantabrica-vertical/cantabricar)
+[![Codecov test coverage](https://codecov.io/gh/cantabrica-vertical/cantabricar/branch/main/graph/badge.svg)](https://codecov.io/gh/cantabrica-vertical/cantabricar?branch=main)
 <!-- badges: end -->
 
 
@@ -47,3 +50,8 @@ launch_app()
 ```
 
 Se abrirá el navegador por defecto y la app se ejecutará.
+
+## Code of Conduct
+
+Please note that the cantabricar project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
+
