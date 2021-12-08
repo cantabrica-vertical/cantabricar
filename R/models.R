@@ -5,6 +5,7 @@
 #' @importFrom brms brm
 #' @importFrom brms prior
 #' @importFrom brms save_pars
+#' @importFrom brms bf
 #' @param type Type of data to fit. One of "germinacion", "hojas", or "cosecha"
 #' @param y Response variable name in data
 #' @param especie Especie variable name in data
@@ -22,13 +23,17 @@ fit_model <- function(
     }
     data$y <- round(as.numeric(gsub(" days", "", t(data[, y])[1,])))
 
-    especie <- data[, especie]
+    # model priors
     prior <- c(
         prior(normal(15, 1), "b"),
         prior(exponential(4), "sd")
     )
+
+    # model formula
+    form <- bf(y ~ 1 + (1 | especie))
+
     x <- brm(
-        formula = y ~ 1 + (1 | especie),
+        formula = form,
         data = data,
         family = poisson,
         backend = "cmdstanr",
@@ -36,9 +41,9 @@ fit_model <- function(
         cores = 1,
         inits = 0,
         iter = 1000,
-        file = system.file("RDS", paste0("fit_", type, ".rds"), package = "cantabricar"),
+        file = file.path(system.file("RDS", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_fit-"), type, ".rds")),
         file_refit = "always",
-        save_model = system.file("Stan", "model.stan", package = "cantabricar"),
+        save_model = file.path(system.file("Stan", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_model-"), type, ".stan")),
         save_pars = save_pars("all")
     )
 
@@ -122,11 +127,9 @@ plot_model <- function(
             fill = "Especie",
             parse = TRUE
         ) +
-        scale_color_brewer(palette = "Dark2") +
-        scale_fill_brewer(palette = "Dark2") +
         theme_custom() +
         theme(
-            legend.position = "top",
+            legend.position = "none",
             legend.title = element_blank(),
             text = element_text(colour = "black", size = 12),
             axis.text = element_text(colour = "black", size = 12),

@@ -14,7 +14,7 @@ tab_estimaciones <- function() {
                     fluidRow(
                         box(
                             title = "Modelo", width = 3,
-                            file.info(system.file("RDS", "fit_germinacion.rds", package = "cantabricar", mustWork = TRUE))$mtime,
+                            file.info(fit_germinacion_path)$mtime,
                             br()
                         ),
                         img(src = "stan.png", width = 100, height = 100, alt = "Logo")
@@ -22,10 +22,19 @@ tab_estimaciones <- function() {
                     br(),
                     br(),
                     fluidRow(
-                        box(
-                            title = "Germinaci\u00f3n", width = 12, solidHeader = TRUE,
-                            plotOutput(outputId = "estimaciones_germinacion_plot"),
-                            DT::dataTableOutput(outputId = "estimaciones_germinacion_table")
+                        column(
+                            width = 6,
+                            box(
+                                width = 12, solidHeader = TRUE,
+                                plotOutput(outputId = "estimaciones_germinacion_plot")
+                            )
+                        ),
+                        column(
+                            width = 6,
+                            box(
+                                width = 12, solidHeader = TRUE,
+                                gt_output(outputId = "estimaciones_germinacion_table")
+                            )
                         )
                     )
                 ),
@@ -35,7 +44,7 @@ tab_estimaciones <- function() {
                     fluidRow(
                         box(
                             title = "Modelo", width = 3,
-                            file.info(system.file("RDS", "fit_hojas.rds", package = "cantabricar", mustWork = TRUE))$mtime,
+                            file.info(fit_hojas_path)$mtime,
                             br()
                         ),
                         img(src = "stan.png", width = 100, height = 100, alt = "Logo")
@@ -43,10 +52,19 @@ tab_estimaciones <- function() {
                     br(),
                     br(),
                     fluidRow(
-                        box(
-                            title = "Hojas verdaderas", width = 12, solidHeader = TRUE,
-                            plotOutput(outputId = "estimaciones_hojas_plot"),
-                            DT::dataTableOutput(outputId = "estimaciones_hojas_table")
+                        column(
+                            width = 6,
+                            box(
+                                width = 12, solidHeader = TRUE,
+                                plotOutput(outputId = "estimaciones_hojas_plot")
+                            )
+                        ),
+                        column(
+                            width = 6,
+                            box(
+                                width = 12, solidHeader = TRUE,
+                                gt_output(outputId = "estimaciones_hojas_table")
+                            )
                         )
                     )
                 ),
@@ -56,7 +74,7 @@ tab_estimaciones <- function() {
                     fluidRow(
                         box(
                             title = "Modelo", width = 3,
-                            file.info(system.file("RDS", "fit_cosecha.rds", package = "cantabricar", mustWork = TRUE))$mtime,
+                            file.info(fit_cosecha_path)$mtime,
                             br()
                         ),
                         img(src = "stan.png", width = 100, height = 100, alt = "Logo")
@@ -64,10 +82,19 @@ tab_estimaciones <- function() {
                     br(),
                     br(),
                     fluidRow(
-                        box(
-                            title = "Cosecha", width = 12, solidHeader = TRUE,
-                            plotOutput(outputId = "estimaciones_cosecha_plot"),
-                            DT::dataTableOutput(outputId = "estimaciones_cosecha_table")
+                        column(
+                            width = 6,
+                            box(
+                                width = 12, solidHeader = TRUE,
+                                plotOutput(outputId = "estimaciones_cosecha_plot")
+                            )
+                        ),
+                        column(
+                            width = 6,
+                            box(
+                                width = 12, solidHeader = TRUE,
+                                gt_output(outputId = "estimaciones_cosecha_table")
+                            )
                         )
                     )
                 )

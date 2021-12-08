@@ -6,6 +6,9 @@
 \usage{
 db_get_data(con)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+}
 \description{
 Retrieve all data
 }

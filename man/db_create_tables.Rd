@@ -6,6 +6,9 @@
 \usage{
 db_create_tables(con)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+}
 \description{
 Create new tables if they don't exist
 }

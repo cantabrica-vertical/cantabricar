@@ -9,6 +9,9 @@ db_summarise(con, data = NULL)
 
 db_summarize(con, data = NULL)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+}
 \description{
 Summarise all data into a table
 }

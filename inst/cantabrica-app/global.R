@@ -25,15 +25,32 @@ values <- db_get_values(con)
 d <- db_get_data(con)
 d_all <- db_summarise(con, d)
 
-rds_path <- system.file("RDS", "fit_germinacion.rds", package = "cantabricar")
+# import model_fits ----
+base_path <- system.file("RDS", package = "cantabricar")
+fit_files <- list.files(base_path)
+rds_path_index <- which.max(as.Date(gsub("(.+?)(\\_.*)", "\\1", fit_files)))
+rds_path <- fit_files[rds_path_index]
+
 if (rds_path=="") {
     fit_germinacion <- fit_model(type = "germinacion", y = "t_germinacion", data = d_all)
     fit_hojas <- fit_model(type = "hojas", y = "t_hojas", data = d_all)
     fit_cosecha <- fit_model(type = "cosecha", y = "t_cosecha", data = d_all)
 } else {
-    fit_germinacion <- readRDS(system.file("RDS", "fit_germinacion.rds", package = "cantabricar", mustWork = TRUE))
-    fit_hojas <- readRDS(system.file("RDS", "fit_hojas.rds", package = "cantabricar", mustWork = TRUE))
-    fit_cosecha <- readRDS(system.file("RDS", "fit_cosecha.rds", package = "cantabricar", mustWork = TRUE))
+    # import germinacion fits
+    fit_germinacion_paths_all <- list.files(base_path, pattern = "germinacion")
+    fit_germinacion_index <- which.max(as.Date(gsub("(.+?)(\\_.*)", "\\1", fit_germinacion_paths_all)))
+    fit_germinacion_path <- list.files(base_path, pattern = "germinacion", full.names = TRUE)[fit_germinacion_index]
+    fit_germinacion <- readRDS(fit_germinacion_path)
+    # import hojas fits
+    fit_hojas_paths_all <- list.files(base_path, pattern = "hojas")
+    fit_hojas_index <- which.max(as.Date(gsub("(.+?)(\\_.*)", "\\1", fit_hojas_paths_all)))
+    fit_hojas_path <- list.files(base_path, pattern = "hojas", full.names = TRUE)[fit_hojas_index]
+    fit_hojas <- readRDS(fit_hojas_path)
+    # import cosecha fits
+    fit_cosecha_paths_all <- list.files(base_path, pattern = "cosecha")
+    fit_cosecha_index <- which.max(as.Date(gsub("(.+?)(\\_.*)", "\\1", fit_cosecha_paths_all)))
+    fit_cosecha_path <- list.files(base_path, pattern = "cosecha", full.names = TRUE)[fit_cosecha_index]
+    fit_cosecha <- readRDS(fit_cosecha_path)
 }
 
 

@@ -6,6 +6,9 @@
 \usage{
 db_empty_tables(con)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+}
 \description{
 Empty all values in all tables but 'valores'
 }

@@ -4,7 +4,12 @@
 \alias{db_fill_tables}
 \title{Add values to all tables other than 'valores'}
 \usage{
-db_fill_tables(con)
+db_fill_tables(con, n = 50)
+}
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+
+\item{n}{number of observations to simulate}
 }
 \description{
 Add values to all tables other than 'valores'

@@ -6,6 +6,9 @@
 \usage{
 db_fill_values(con)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+}
 \description{
 Add values if table 'valores' is empty
 }

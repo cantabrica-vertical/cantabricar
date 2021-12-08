@@ -6,6 +6,9 @@
 \usage{
 db_delete_tables(con)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+}
 \description{
 Delete tables
 }

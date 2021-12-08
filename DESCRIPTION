@@ -46,7 +46,8 @@ Imports:
     tidybayes,
     RSQLite,
     readr,
-    glue
+    glue,
+    gt
 Suggests: 
     shinytest,
     testthat (>= 3.0.0)

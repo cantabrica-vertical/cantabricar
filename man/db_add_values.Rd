@@ -6,6 +6,14 @@
 \usage{
 db_add_values(con, tipo, valor)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+
+\item{tipo}{character string indicating the type of value to add: "especie",
+"variedad", "marca", "medio_siembra", "planta_tipo", or "luz"}
+
+\item{valor}{character string with the value}
+}
 \description{
 Add new values to UI choices
 }

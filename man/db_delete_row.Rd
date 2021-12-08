@@ -6,6 +6,13 @@
 \usage{
 db_delete_row(con, table, id)
 }
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+
+\item{table}{character string indicating the table from which a row should be deleted}
+
+\item{id}{character string indicating the ID of the row (plant) to be deleted}
+}
 \description{
 Delete row from SQL table
 }

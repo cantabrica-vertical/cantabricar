@@ -4,7 +4,14 @@
 \alias{db_add_row}
 \title{Add new row to SQL table}
 \usage{
-db_add_row(table, ...)
+db_add_row(con, table, ...)
+}
+\arguments{
+\item{con}{connection to database, as returned by \code{db_connect}}
+
+\item{table}{character string indicating the table to which the new row should be added}
+
+\item{...}{variables to add}
 }
 \description{
 Add new row to SQL table

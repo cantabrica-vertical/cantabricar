@@ -44,7 +44,7 @@ shinyServer(
       )
       updateSelectInput(session, "database_germinacion_id", choices = active_ids()$siembras)
       updateSelectInput(session, "database_hojas_id", choices = active_ids()$siembras)
-      updateSelectInput(session, "database_cosecha_id",choices = active_ids()$siembras)
+      updateSelectInput(session, "database_cosecha_id", choices = active_ids()$siembras)
       updateSelectInput(session, "database_siembra_especie", choices = values$especie)
       updateSelectInput(session, "database_siembra_variedad", choices = values$variedad)
       updateSelectInput(session, "database_siembra_marca", choices = values$marca)
@@ -92,6 +92,7 @@ shinyServer(
     output$dashboard_fechas_plot <- renderPlotly({
       x <- db_summarise(con) %>%
         count(fecha_siembra,  especie) %>%
+        mutate(fecha_siembra = as.Date(fecha_siembra)) %>%
         group_by(especie) %>%
         mutate(n_cum = cumsum(n)) %>%
         ungroup() %>%
@@ -102,10 +103,12 @@ shinyServer(
         geom_line(aes(group = especie), size = 1) +
         labs(x = "Fecha de siembra", y = "# siembras", colour = "Especie") +
         theme_custom() +
+        scale_x_date(date_labels = "%b %d") +
         scale_y_continuous(labels = as.integer) +
         theme(
           legend.position = "top",
           legend.title = element_blank(),
+          panel.grid.major.x = element_blank(),
           axis.text = element_text(size = 12)
         )
       return(x)
@@ -121,7 +124,8 @@ shinyServer(
         scale_x_continuous(limits = c(0.5, 1.5)) +
         theme_void() +
         theme(
-          legend.position = "none"
+          legend.position = "none",
+          panel.grid = element_blank()
         )
       return(x)
     })
@@ -132,6 +136,7 @@ shinyServer(
       x <- db_summarise(con) %>%
         select(id, especie, variedad, fecha_siembra) %>%
         mutate(
+          fecha_siembra = as_datetime(fecha_siembra),
           start = fecha_siembra,
           end = fecha_siembra + ceiling(fixef(fit_cosecha)[1]),
           title = paste0("ID: ", id, " (", especie, " ", variedad, ")"),
@@ -150,7 +155,18 @@ shinyServer(
             especie=="Mizuna" ~ "#DB72FB",
             TRUE ~ "#000000"
           ),
-          case_when(
+          borderColor = case_when(
+            especie=="Rábano" ~ "#F8766D",
+            especie=="Swisschard" ~ "#D39200",
+            especie=="Guisante" ~ "#93AA00",
+            especie=="Albahaca" ~ "#00BA38",
+            especie=="Melisa" ~ "#00C19F",
+            especie=="Pe-tsai" ~ "#00B9E3",
+            especie=="Pak choi" ~ "#619CFF",
+            especie=="Mizuna" ~ "#DB72FB",
+            TRUE ~ "#000000"
+          ),
+          color = case_when(
             especie=="Rábano" ~ "#F8766D",
             especie=="Swisschard" ~ "#D39200",
             especie=="Guisante" ~ "#93AA00",
@@ -177,26 +193,42 @@ shinyServer(
     })
 
     # datos ----
-    output$database_table <- DT::renderDT({
+    output$database_table <- render_gt({
 
       x <- db_summarise(con) %>%
         mutate_at(vars(starts_with("t_")), function(x) ifelse(is.na(x), "-", x)) %>%
-        mutate_at(vars(starts_with("fecha_")), as_datetime) %>%
-        select(input$datos_cols) %>%
-        arrange(desc(id))
-
-      DT::datatable(
-        x,
-        extensions = c("Buttons", "Select"),
-        rownames = FALSE,
-        options = list(
-          "copy", "print",
-          pageLength = 50,
-          autoWidth = FALSE,
-          scrollX = TRUE,
-          search.caseInsensitive = TRUE
+        mutate_at(vars(starts_with("fecha_")), as.Date) %>%
+        # select(input$datos_cols) %>%
+        arrange(desc(id)) %>%
+        select(-planta_tipo) %>%
+        relocate(id, especie, variedad, marca, starts_with("fecha_"), starts_with("t_")) %>%
+        gt() %>%
+        tab_spanner(md("**Fechas**"), starts_with("fecha_")) %>%
+        tab_spanner(md("**Tiempos (d)**"), starts_with("t_")) %>%
+        fmt_number(starts_with("t_")) %>%
+        fmt_date(starts_with("fecha_"), date_style = "iso") %>%
+        fmt_missing(columns = everything(), rows = everything(), missing_text = " - ") %>%
+        cols_label(
+          id = md("**ID**"),
+          especie = md("**Especie**"),
+          variedad = md("**Variedad**"),
+          marca = md("**Marca**"),
+          fecha_siembra = md("**Siembra**"),
+          fecha_germinacion = md("**Germinaci\u00f3n**"),
+          fecha_hojas = md("**Hojas**"),
+          fecha_cosecha = md("**Cosecha**"),
+          medio_siembra =  md("**Medio**"),
+          luz = md("**Luz**"),
+          domo = md("**Domo**"),
+          peso = md("**Peso**"),
+          calor = md("**Calor**"),
+          peso_semillas = md("**Semillas (g)**"),
+          t_germinacion = md("**Germinaci\u00f3n**"),
+          t_hojas = md("**Hojas**"),
+          t_cosecha = md("**Cosecha**")
         )
-      )
+
+      return(x)
     })
 
     output$descargar <- downloadHandler(
@@ -206,9 +238,6 @@ shinyServer(
         x <- d_all %>%
           mutate_at(vars(starts_with("t_")), function(x) ifelse(is.na(x), "-", x)) %>%
           mutate_at(vars(starts_with("fecha_")), as_datetime) %>%
-          select(
-            input$datos_cols
-          ) %>%
           arrange(desc(fecha_siembra), desc(id))
         write.table(x, file = file, sep = ",", na = "", row.names = FALSE)
       }
@@ -238,9 +267,20 @@ shinyServer(
     })
 
     ## germinacion
-    output$estimaciones_germinacion_table <- renderDataTable({
-      x <- brms::ranef(fit_germinacion)$especie[,,"Intercept"]+fixef(fit_germinacion)[1]
-      datatable(x, rownames = FALSE)
+    output$estimaciones_germinacion_table <- render_gt({
+      x <- ranef(fit_germinacion)$especie[,,"Intercept"] + fixef(fit_germinacion)[1]
+      tbl <- as.data.frame(x, row.names = row.names(x)) %>%
+        rownames_to_column("especie") %>%
+        gt() %>%
+        fmt_number(Estimate:Q97.5) %>%
+        cols_merge(Q2.5:Q97.5, pattern = "[{1}, {2}]") %>%
+        cols_label(
+          especie = md("**Especie**"),
+          Estimate = md("***Media***"),
+          Est.Error = md("***SE***"),
+          Q2.5 = md("**95% *CrI***")
+        )
+      return(tbl)
     })
 
     # estimaciones germinacion
@@ -250,9 +290,20 @@ shinyServer(
     })
 
     # estimaciones hojas
-    output$estimaciones_hojas_table <- renderDataTable({
+    output$estimaciones_hojas_table <- render_gt({
       x <- brms::ranef(fit_hojas)$especie[,,"Intercept"]+fixef(fit_hojas)[1]
-      datatable(x, rownames = FALSE)
+      tbl <- as.data.frame(x, row.names = row.names(x)) %>%
+        rownames_to_column("especie") %>%
+        gt() %>%
+        fmt_number(Estimate:Q97.5) %>%
+        cols_merge(Q2.5:Q97.5, pattern = "[{1}, {2}]") %>%
+        cols_label(
+          especie = md("**Especie**"),
+          Estimate = md("***Media***"),
+          Est.Error = md("***SE***"),
+          Q2.5 = md("**95% *CrI***")
+        )
+      return(tbl)
     })
 
     output$estimaciones_hojas_plot <- renderPlot({
@@ -261,10 +312,20 @@ shinyServer(
     })
 
     # estimaciones cosecha
-    output$estimaciones_cosecha_table <- renderDataTable({
+    output$estimaciones_cosecha_table <- render_gt({
       x <- brms::ranef(fit_cosecha)$especie[,,"Intercept"]+fixef(fit_cosecha)[1]
-      datatable(x, rownames = FALSE
-      )
+      tbl <- as.data.frame(x, row.names = row.names(x)) %>%
+        rownames_to_column("especie") %>%
+        gt() %>%
+        fmt_number(Estimate:Q97.5) %>%
+        cols_merge(Q2.5:Q97.5, pattern = "[{1}, {2}]") %>%
+        cols_label(
+          especie = md("**Especie**"),
+          Estimate = md("***Media***"),
+          Est.Error = md("***SE***"),
+          Q2.5 = md("**95% *CrI***")
+        )
+      return(tbl)
     })
 
     output$estimaciones_cosecha_plot <- renderPlot({
@@ -282,13 +343,12 @@ shinyServer(
         especie = input$database_siembra_especie,
         variedad = input$database_siembra_variedad,
         marca = input$database_siembra_marca,
-        planta_tipo = input$database_siembra_planta_tipo,
-        comentarios = input$database_siembra_comentarios
+        planta_tipo = input$database_siembra_planta_tipo
       )
       db_add_row(
-        con, "sembradas",
+        con, "siembras",
         id = input$database_siembra_id,
-        fecha_siembra = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D")),
+        fecha_siembra = format(Sys.time(), "%Y-%m-%d %H:%M:%D"),
         medio_siembra = input$database_siembra_medio_siembra,
         peso = input$database_siembra_peso,
         calor = input$database_siembra_calor,
@@ -306,7 +366,7 @@ shinyServer(
     observeEvent(input$database_siembra_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      db_delete_row(con, "sembradas", input$database_eliminar_siembra_id)
+      db_delete_row(con, "siembras", input$database_eliminar_siembra_id)
       db_delete_row(con, "plantas", input$database_eliminar_siembra_id)
       d <<- db_get_data(con)
       d_all <<- db_summarise(con, d)
@@ -378,9 +438,9 @@ shinyServer(
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       db_add_row(
-        con, "germinadas",
+        con, "germinaciones",
         id = input$database_germinacion_id,
-        fecha_germinacion = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D")),
+        fecha_germinacion = format(Sys.time(), "%Y-%m-%d %H:%M:%D"),
         comentarios = input$database_germinacion_comentarios
       )
       d <<- db_get_data(con)
@@ -392,7 +452,7 @@ shinyServer(
     observeEvent(input$database_germinacion_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      db_delete_row(con, "germinadas", input$database_eliminar_germinacion_id)
+      db_delete_row(con, "germinaciones", input$database_eliminar_germinacion_id)
       d <<- db_get_data(con)
       d_all <<- db_summarise(con, data)
       remove_modal_spinner()
@@ -400,7 +460,7 @@ shinyServer(
     })
 
     output$germinacion_table <- DT::renderDataTable({
-      x <- d_all  %>%
+      x <- d_all %>%
         mutate(
           planta = paste0(especie, " (", variedad, ")"),
           t_germinacion = difftime(fecha_germinacion, fecha_siembra, units = "days")
@@ -432,7 +492,7 @@ shinyServer(
       db_add_row(
         con, "hojas",
         id = input$database_hojas_id,
-        fecha_hojas = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D")),
+        fecha_hojas = format(Sys.time(), "%Y-%m-%d %H:%M:%D"),
         comentarios = input$database_hojas_comentarios
       )
       d <<- db_get_data(con)
@@ -484,9 +544,9 @@ shinyServer(
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
       db_add_row(
-        con, "cosechadas",
+        con, "cosechas",
         id = input$database_cosecha_id,
-        fecha_cosecha = as.POSIXct(format(Sys.time(), "%Y-%m-%d %H:%M:%D")),
+        fecha_cosecha = format(Sys.time(), "%Y-%m-%d %H:%M:%D"),
         comentarios = input$database_cosecha_comentarios
       )
       d <<- db_get_data(con)
@@ -498,7 +558,7 @@ shinyServer(
     observeEvent(input$database_cosecha_eliminar_button, {
       Sys.sleep(1.5)
       show_modal_spinner(spin = "semipolar", color = "DeepSkyBlue", text = "Cargando")
-      db_delete_row(con, "cosechadas", input$database_eliminar_cosecha_id)
+      db_delete_row(con, "cosechas", input$database_eliminar_cosecha_id)
       d <<- db_get_data(con)
       d_all <<- db_summarise(con, d)
       remove_modal_spinner()
