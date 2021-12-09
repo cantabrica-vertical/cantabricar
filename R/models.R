@@ -43,7 +43,7 @@ fit_model <- function(
         iter = 1000,
         file = file.path(system.file("rds", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_fit-"), type, ".rds")),
         file_refit = "always",
-        save_model = file.path(system.file("stan", package = "cantabricar"), paste0(format(Sys.Date(), "%Y-%m-%d_model-"), type, ".stan")),
+        save_model = file.path(system.file("stan", package = "cantabricar"), paste0(type, ".stan")),
         save_pars = save_pars("all")
     )
 
@@ -119,7 +119,7 @@ plot_model <- function(
         geom_errorbar(size = 1, width = 0) +
         geom_point(size = 4) +
         labs(
-            x = "Días",
+            x = "D\u00edas",
             y = "Especie",
             colour = "Especie",
             fill = "Especie",

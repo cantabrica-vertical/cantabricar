@@ -7,3 +7,6 @@ if (interactive()) {
     suppressMessages(require(usethis))
 }
 
+if (interactive()) {
+    suppressMessages(require(pkgdown))
+}

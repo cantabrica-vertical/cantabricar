@@ -1,5 +1,6 @@
 # run this script when app is launched
 
+# load packages ----
 library(brms)
 library(cantabricar)
 library(DBI)
@@ -13,7 +14,6 @@ library(plotly)
 library(shinydashboard)
 library(shinybusy)
 library(shinyjs)
-library(shinyWidgets)
 library(gt)
 library(tidyr)
 library(tibble)

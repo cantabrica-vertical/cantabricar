@@ -14,7 +14,6 @@ LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: 
-    bayesplot (>= 1.8.1),
     brms (>= 2.16.1),
     cmdstanr (>= 0.4.0.9000),
     DBI (>= 1.1.1),
@@ -22,22 +21,15 @@ Imports:
     ggplot2 (>= 3.3.5),
     glue (>= 1.4.2),
     gt (>= 0.2.2),
-    lifecycle (>= 1.0.1),
-    lubridate (>= 1.8.0),
     magrittr (>= 2.0.1),
-    methods,
     plotly (>= 4.9.4.1),
     purrr (>= 0.3.4),
-    Rcpp (>= 0.12.0),
-    RcppParallel (>= 5.0.1),
     RSQLite (>= 2.2.8),
     scales (>= 1.1.1),
     shiny (>= 1.7.1),
     shinybusy (>= 0.2.2),
     shinydashboard (>= 0.7.1),
     shinyjs (>= 2.0.0),
-    shinyWidgets (>= 0.6.0),
-    stringr (>= 1.4.0),
     tibble (>= 3.1.5),
     tidybayes (>= 3.0.1),
     tidyr (>= 1.1.4),
@@ -50,7 +42,5 @@ Suggests:
     shinytest,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Biarch: true
 Depends: 
-    R (>= 3.4.0)
-SystemRequirements: GNU make
+    R (>= 3.5.0)
