@@ -53,6 +53,10 @@ jobs:
         with:
           extra-packages: rcmdcheck
 
+      - name: Setup cmdstanr
+        run: Rscript -e "cmdstanr::install_cmdstan()"
+        shell: bash
+
       - uses: r-lib/actions/check-r-package@v1
 
       - name: Show testthat output
