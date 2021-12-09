@@ -15,7 +15,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Imports: 
     bayesplot,
-    cmdstanr,
+    brms,
     DBI,
     dplyr,
     ggplot2,
@@ -33,12 +33,13 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    toastui,
-    brms,
     tidybayes,
     RSQLite,
     glue,
     gt
+Remotes: 
+    dreamRs/toastui,
+    stan-dev/cmdstanr
 Suggests: 
     covr,
     shinytest,
