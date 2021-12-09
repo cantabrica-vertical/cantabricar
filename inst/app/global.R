@@ -33,7 +33,7 @@ fit_files <- list.files(base_path)
 rds_path_index <- which.max(as.Date(gsub("(.+?)(\\_.*)", "\\1", fit_files)))
 rds_path <- fit_files[rds_path_index]
 
-if (rds_path=="") {
+if (length(rds_path) < 1) {
     fit_germinacion <- fit_model(type = "germinacion", y = "t_germinacion", data = d_all)
     fit_hojas <- fit_model(type = "hojas", y = "t_hojas", data = d_all)
     fit_cosecha <- fit_model(type = "cosecha", y = "t_cosecha", data = d_all)

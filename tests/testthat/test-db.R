@@ -1,6 +1,7 @@
 library(cantabricar)
 
 con <- db_connect(test = TRUE)
+db_delete_tables(con)
 db_create_tables(con)
 d <- db_get_data(con)
 d_all <- as.data.frame(db_summarise(con))

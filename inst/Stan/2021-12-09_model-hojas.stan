@@ -35,7 +35,7 @@ model {
     target += poisson_log_lpmf(Y | mu);
   }
   // priors including constants
-  target += student_t_lpdf(Intercept | 3, 3.1, 2.5);
+  target += student_t_lpdf(Intercept | 3, 2.7, 2.5);
   target += student_t_lpdf(sd_1 | 3, 0, 2.5)
     - 1 * student_t_lccdf(0 | 3, 0, 2.5);
   target += std_normal_lpdf(z_1[1]);

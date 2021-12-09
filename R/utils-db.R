@@ -65,15 +65,17 @@ db_create_tables <- function(
 db_fill_values <- function(con)
 {
     val <- db_get_values(con)
-    val_lgl <- (map_lgl(val, function(x) length(x) < 1))
-    if (all(val_lgl))
-    {
-        data("valores")
+    val_lgl <- map_lgl(val, function(x) length(x) < 1)
+    if (all(val_lgl)){
         db_add_values(
             con,
             tipo = valores$tipo,
             valor = valores$valor
         )
+    }
+
+    if (interactive()){
+        message("Table 'valores' filled")
     }
 }
 
@@ -126,7 +128,9 @@ db_fill_tables <- function(con, n = 200)
     db_add_row(con, "hojas", data.frame(id = 1:n, fecha_hojas = as.character(f_hojas), comentarios = comment_strings))
     db_add_row(con, "cosechas", data.frame(id = 1:n, fecha_cosecha = as.character(f_cosechas), comentarios = comment_strings))
 
-    message("Tables filled")
+    if (interactive()){
+        message("Tables filled")
+    }
 }
 
 #' Empty all values in all tables but 'valores'
@@ -137,13 +141,17 @@ db_empty_tables <- function(con)
 {
     tbl_ls <- dbListTables(con)[-which(dbListTables(con)=="valores")]
     if (length(tbl_ls) > 0){
-    invisible({
-        qrys <- paste0("DELETE FROM ", tbl_ls)
-        lapply(qrys, function(x) dbExecute(con, x))
-    })
-    message("Tables emptied")
+        invisible({
+            qrys <- paste0("DELETE FROM ", tbl_ls)
+            lapply(qrys, function(x) dbExecute(con, x))
+        })
+        if (interactive()){
+            message("Tables emptied")
+        }
     } else {
-        message("Tables do not exist")
+        if (interactive()){
+            message("Tables do not exist")
+        }
     }
 }
 
@@ -161,9 +169,13 @@ db_delete_tables <- function(con)
             db_list <- dbListTables(con)
             lapply(db_list, function(x) dbRemoveTable(con, x))
         })
-        message("Tables deleted")
+        if (interactive()){
+            message("Tables deleted")
+        }
     } else {
-        message("No tables to delete")
+        if (interactive()){
+            message("No tables to delete")
+        }
     }
 }
 
@@ -180,32 +192,32 @@ db_get_data <- function(con)
     if (length(tbl_ls) > 0)
     {
 
-    x <- list(
-        plantas = dbReadTable(con, "plantas"),
-        siembras = dbReadTable(con, "siembras"),
-        germinaciones = dbReadTable(con, "germinaciones"),
-        hojas = dbReadTable(con, "hojas"),
-        cosechas = dbReadTable(con, "cosechas")
-    ) %>%
-        lapply(
-            function(x)
-            {
-                x %>%
-                    mutate_at(
-                        vars(any_of(c("domo", "luz", "calor", "peso"))),
-                        function(y) as.logical(as.integer(y))
-                    ) %>%
-                    mutate_at(
-                        vars(starts_with("fecha_")),
-                        function(y) as.POSIXct(y)
-                    ) %>%
-                    mutate_at(
-                        vars(any_of(c("peso_semillas"))),
-                        function(y) as.numeric(y)
-                    )
-            }
-        )
-    return(x)
+        x <- list(
+            plantas = dbReadTable(con, "plantas"),
+            siembras = dbReadTable(con, "siembras"),
+            germinaciones = dbReadTable(con, "germinaciones"),
+            hojas = dbReadTable(con, "hojas"),
+            cosechas = dbReadTable(con, "cosechas")
+        ) %>%
+            lapply(
+                function(x)
+                {
+                    x %>%
+                        mutate_at(
+                            vars(any_of(c("domo", "luz", "calor", "peso"))),
+                            function(y) as.logical(as.integer(y))
+                        ) %>%
+                        mutate_at(
+                            vars(starts_with("fecha_")),
+                            function(y) as.POSIXct(y)
+                        ) %>%
+                        mutate_at(
+                            vars(any_of(c("peso_semillas"))),
+                            function(y) as.numeric(y)
+                        )
+                }
+            )
+        return(x)
     } else {
         stop("Tables do not exist")
     }
