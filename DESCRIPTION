@@ -16,9 +16,12 @@ RoxygenNote: 7.1.1
 Imports: 
     bayesplot,
     brms,
+    cmdstanr,
     DBI,
     dplyr,
     ggplot2,
+    glue,
+    gt,
     lifecycle,
     lubridate,
     magrittr,
@@ -34,9 +37,8 @@ Imports:
     tibble,
     tidyr,
     tidybayes,
-    RSQLite,
-    glue,
-    gt
+    toastui,
+    RSQLite
 Remotes: 
     dreamRs/toastui,
     stan-dev/cmdstanr
