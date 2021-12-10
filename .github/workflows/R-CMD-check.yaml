@@ -54,7 +54,7 @@ jobs:
           extra-packages: rcmdcheck
 
       - name: Setup cmdstanr
-        run: Rscript -e "cmdstanr::install_cmdstan()"
+        run: Rscript -e "cmdstanr::install_cmdstan(check_toolchain = FALSE)"
         shell: bash
 
       - uses: r-lib/actions/check-r-package@v1
