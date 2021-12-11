@@ -1,0 +1,5 @@
+Name: Launch app
+Description: Launch the cantabricar app in the web browser
+Binding: launch_app
+Interactive: false
+

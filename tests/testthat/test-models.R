@@ -8,6 +8,8 @@ d <- data.frame(
     t_cosecha = rpois(10, 15)
 )
 
+cmdstanr::set_cmdstan_path()
+
 temp_dir <- tempdir()
 f <- fit_model(
     type = "germinacion", y = "t_germinacion", data = d,

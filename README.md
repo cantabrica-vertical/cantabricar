@@ -12,6 +12,8 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://circleci.com/gh/cantabrica-vertical/cantabricar.svg?style=svg)](https://circleci.com/gh/cantabrica-vertical/cantabricar)
 [![Codecov test
 coverage](https://codecov.io/gh/cantabrica-vertical/cantabricar/branch/main/graph/badge.svg)](https://codecov.io/gh/cantabrica-vertical/cantabricar?branch=main)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/cantabricar)](https://CRAN.R-project.org/package=cantabricar)
 <!-- badges: end -->
 
 ## Installación

@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/cantabrica-vertical/cantabricar/workflows/R-CMD-check/badge.svg)](https://github.com/cantabrica-vertical/cantabricar/actions)
 [![CircleCI build status](https://circleci.com/gh/cantabrica-vertical/cantabricar.svg?style=svg)](https://circleci.com/gh/cantabrica-vertical/cantabricar)
 [![Codecov test coverage](https://codecov.io/gh/cantabrica-vertical/cantabricar/branch/main/graph/badge.svg)](https://codecov.io/gh/cantabrica-vertical/cantabricar?branch=main)
+[![CRAN status](https://www.r-pkg.org/badges/version/cantabricar)](https://CRAN.R-project.org/package=cantabricar)
 <!-- badges: end -->
 
 
