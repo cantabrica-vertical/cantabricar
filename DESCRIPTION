@@ -16,7 +16,6 @@ RoxygenNote: 7.1.1
 Imports: 
     brms (>= 2.16.1),
     cmdstanr (>= 0.4.0.9000),
-    DBI (>= 1.1.1),
     dplyr (>= 1.0.7),
     ggplot2 (>= 3.3.5),
     glue (>= 1.4.2),
@@ -24,6 +23,7 @@ Imports:
     magrittr (>= 2.0.1),
     plotly (>= 4.9.4.1),
     purrr (>= 0.3.4),
+    rlang (>= 0.4.11),
     RSQLite (>= 2.2.8),
     scales (>= 1.1.1),
     shiny (>= 1.7.1),

@@ -5,7 +5,7 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^.Rprofile$
-^inst/db/.db$
+^inst/db\.db$
 ^data-raw$
 ^\.github$
 ^\.circleci$
@@ -16,4 +16,3 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
-^

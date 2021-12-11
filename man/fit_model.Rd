@@ -4,20 +4,22 @@
 \alias{fit_model}
 \title{Fit germinacion model}
 \usage{
-fit_model(type = NULL, y = "y", especie = "especie", data)
+fit_model(type, y = "y", especie = "especie", data, rds_path = NULL)
 }
 \arguments{
-\item{type}{Type of data to fit. One of "germinacion", "hojas", or "cosecha"}
+\item{type}{type of data to fit. One of "germinacion", "hojas", or "cosecha"}
 
-\item{y}{Response variable name in data}
+\item{y}{response variable name in data}
 
-\item{especie}{Especie variable name in data}
+\item{especie}{especie variable name in data}
 
-\item{data}{Data frame with a row for each plant and at least one
+\item{data}{data frame with a row for each plant and at least one}
+
+\item{rds_path}{character string indicating the path in which to save the brmsfit object
 column with the germination days}
 }
 \value{
-A brmsfit object.
+a brmsfit object
 }
 \description{
 Fit germinacion model
